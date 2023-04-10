@@ -1,14 +1,25 @@
 import { StyleSheet, Text, View } from "react-native";
 import LottieView from "lottie-react-native";
 import { Button } from "react-native-paper";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 
 const HomeScreen = ({ navigation }: any) => {
   const [animation, setAnimation] = useState<any>(null);
+  const lot = useRef<any>(null);
   useLayoutEffect(() => {
     const animation = require("../assets/illustrations/intro.json");
     setAnimation(animation);
   }, []);
+  useFocusEffect(
+    useCallback(() => {
+      lot.current?.play();
+
+      return () => {
+        lot.current?.pause();
+      };
+    }, [])
+  );
 
   return (
     <View style={styles.container}>
@@ -20,7 +31,7 @@ const HomeScreen = ({ navigation }: any) => {
       >
         {animation && (
           <LottieView
-            autoPlay
+            ref={lot}
             style={{
               width: 350,
               height: 350,
@@ -55,6 +66,7 @@ const HomeScreen = ({ navigation }: any) => {
         mode="contained"
         labelStyle={{ fontFamily: "SourceSansPro-Bold" }}
         onPress={() => {
+          lot.current?.pause();
           navigation.navigate("Login");
         }}
         buttonColor="#7976FF"

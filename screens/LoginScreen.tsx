@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { StyleSheet, Text, View } from "react-native";
-import { Button, TextInput, Divider } from "react-native-paper";
+import { Button, TextInput, Divider, HelperText } from "react-native-paper";
 import ControlledTextInput from "../components/ControlledTextInput";
 
 const LoginScreen = () => {
@@ -33,15 +33,21 @@ const LoginScreen = () => {
         inputProps={{
           left: <TextInput.Icon icon="account" />,
           style: { ...styles.input, marginVertical: 20 },
+          error: errors.username ? true : false,
         }}
       />
+      {errors.username && (
+        <HelperText type="error">{errors.username?.message}</HelperText>
+      )}
       <ControlledTextInput
         control={control}
         name="password"
         label="Password"
         placeholder="Enter your username"
+        minLength={8}
         secureTextEntry={secure}
         inputProps={{
+          error: errors.password ? true : false,
           onBlur: () => setSecure(true),
           right: (
             <TextInput.Icon
@@ -53,6 +59,9 @@ const LoginScreen = () => {
           style: { ...styles.input },
         }}
       />
+      {errors.password && (
+        <HelperText type="error">{errors.password?.message}</HelperText>
+      )}
       {/* a small gray line to divide content */}
 
       <Button

@@ -57,6 +57,7 @@ export default function App() {
     <PaperProvider>
       <NavigationContainer onReady={onLayoutRootView}>
         <Stack.Navigator
+          detachInactiveScreens={true}
           initialRouteName="Home"
           screenOptions={{
             headerShown: false,
