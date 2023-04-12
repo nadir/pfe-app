@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { StyleSheet, Text, View } from "react-native";
-import { Button, TextInput, Divider, HelperText } from "react-native-paper";
+import { Keyboard, StyleSheet, Text, View } from "react-native";
+import { Button, TextInput, Divider } from "react-native-paper";
 import ControlledTextInput from "../components/ControlledTextInput";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-const LoginScreen = () => {
+const LoginScreen = ({ navigation }: any) => {
   const [secure, setSecure] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     control,
@@ -18,57 +20,68 @@ const LoginScreen = () => {
     },
   });
 
-  const onSubmit = (data: any) => console.log(data);
+  const onSubmit = (data: any) => {
+    console.log(data);
+  };
 
   return (
-    <View style={styles.container}>
-      <Text style={{ fontFamily: "SourceSansPro-Bold", fontSize: 30 }}>
+    <SafeAreaView style={styles.container}>
+      <Text
+        style={{
+          fontFamily: "SourceSansPro-Bold",
+          fontSize: 30,
+          marginBottom: 10,
+        }}
+      >
         Login to your account
       </Text>
-      <ControlledTextInput
-        control={control}
-        name="username"
-        label="Username"
-        placeholder="Enter your username"
-        inputProps={{
-          left: <TextInput.Icon icon="account" />,
-          style: { ...styles.input, marginVertical: 20 },
-          error: errors.username ? true : false,
-        }}
-      />
-      {errors.username && (
-        <HelperText type="error">{errors.username?.message}</HelperText>
-      )}
-      <ControlledTextInput
-        control={control}
-        name="password"
-        label="Password"
-        placeholder="Enter your username"
-        minLength={8}
-        secureTextEntry={secure}
-        inputProps={{
-          error: errors.password ? true : false,
-          onBlur: () => setSecure(true),
-          right: (
-            <TextInput.Icon
-              icon={secure ? "eye" : "eye-off"}
-              onPress={() => setSecure(!secure)}
-            />
-          ),
-          left: <TextInput.Icon icon="lock" />,
-          style: { ...styles.input },
-        }}
-      />
-      {errors.password && (
-        <HelperText type="error">{errors.password?.message}</HelperText>
-      )}
-      {/* a small gray line to divide content */}
+      <View style={{ gap: 20 }}>
+        <ControlledTextInput
+          control={control}
+          name="username"
+          label="Username"
+          placeholder="Enter your username"
+          error={errors.username}
+          inputProps={{
+            left: <TextInput.Icon icon="account" />,
+            style: { ...styles.input },
+            autoCapitalize: "none",
+          }}
+        />
+        <ControlledTextInput
+          control={control}
+          name="password"
+          label="Password"
+          placeholder="Enter your password"
+          error={errors.password}
+          minLength={8}
+          secureTextEntry={secure}
+          inputProps={{
+            onBlur: () => setSecure(true),
+            right: (
+              <TextInput.Icon
+                icon={secure ? "eye" : "eye-off"}
+                onPress={() => setSecure(!secure)}
+              />
+            ),
+            left: <TextInput.Icon icon="lock" />,
+            style: { ...styles.input },
+          }}
+        />
+      </View>
 
       <Button
         mode="contained"
         style={styles.btn}
         labelStyle={{ fontFamily: "SourceSansPro-Bold" }}
-        onPress={() => handleSubmit(onSubmit)()}
+        onPressIn={() => setIsLoading(true)}
+        onPress={() => {
+          Keyboard.dismiss();
+          handleSubmit(onSubmit)();
+          setIsLoading(false);
+        }}
+        loading={isLoading}
+        disabled={isLoading}
         buttonColor="#7976FF"
         icon="arrow-right"
       >
@@ -78,7 +91,6 @@ const LoginScreen = () => {
       <Divider
         style={{
           backgroundColor: "#d8d8da",
-          width: "90%",
         }}
       />
       <Button
@@ -86,11 +98,14 @@ const LoginScreen = () => {
         mode="contained-tonal"
         style={[styles.btn]}
         labelStyle={{ fontFamily: "SourceSansPro-Bold" }}
-        onPress={() => console.log("Pressed")}
+        onPress={() => {
+          Keyboard.dismiss();
+          navigation.navigate("Signup");
+        }}
       >
         Create an account
       </Button>
-    </View>
+    </SafeAreaView>
   );
 };
 

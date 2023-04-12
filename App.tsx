@@ -1,6 +1,12 @@
 import { useCallback } from "react";
 import { Text, View, StyleSheet } from "react-native";
-import { Button, Provider as PaperProvider } from "react-native-paper";
+import {
+  Button,
+  MD2DarkTheme,
+  MD3LightTheme,
+  Provider as PaperProvider,
+  configureFonts,
+} from "react-native-paper";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import * as NavigationBar from "expo-navigation-bar";
@@ -12,6 +18,8 @@ import { NavigationContainer } from "@react-navigation/native";
 import LoginScreen from "./screens/LoginScreen";
 import HomeScreen from "./screens/HomeScreen";
 import { enableScreens } from "react-native-screens";
+import { fontConfig } from "./config/fontConfig";
+import SignupScreen from "./screens/Signup/SignupScreen";
 enableScreens();
 // Prevent native splash screen from autohiding before App component declaration
 SplashScreen.preventAutoHideAsync();
@@ -53,6 +61,12 @@ export default function App() {
     return null;
   }
 
+  const theme = {
+    fonts: configureFonts({
+      config: fontConfig,
+    }),
+  };
+
   return (
     <PaperProvider>
       <NavigationContainer onReady={onLayoutRootView}>
@@ -66,6 +80,7 @@ export default function App() {
         >
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Signup" component={SignupScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </PaperProvider>
