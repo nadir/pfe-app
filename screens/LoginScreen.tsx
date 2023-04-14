@@ -4,6 +4,16 @@ import { Keyboard, StyleSheet, Text, View } from "react-native";
 import { Button, TextInput, Divider } from "react-native-paper";
 import ControlledTextInput from "../components/ControlledTextInput";
 import { SafeAreaView } from "react-native-safe-area-context";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+
+const loginSchema = yup.object({
+  username: yup.string().required("Username is required"),
+  password: yup
+    .string()
+    .min(8, "Password should have a min length of 8")
+    .required("Password is required"),
+});
 
 const LoginScreen = ({ navigation }: any) => {
   const [secure, setSecure] = useState(true);
@@ -14,6 +24,7 @@ const LoginScreen = ({ navigation }: any) => {
     handleSubmit,
     formState: { errors },
   } = useForm({
+    resolver: yupResolver(loginSchema),
     defaultValues: {
       username: "",
       password: "",
@@ -55,15 +66,9 @@ const LoginScreen = ({ navigation }: any) => {
           placeholder="Enter your password"
           error={errors.password}
           minLength={8}
-          secureTextEntry={secure}
+          isPassword={true}
           inputProps={{
             onBlur: () => setSecure(true),
-            right: (
-              <TextInput.Icon
-                icon={secure ? "eye" : "eye-off"}
-                onPress={() => setSecure(!secure)}
-              />
-            ),
             left: <TextInput.Icon icon="lock" />,
             style: { ...styles.input },
           }}

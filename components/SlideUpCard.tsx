@@ -1,6 +1,12 @@
 import React, { ReactChildren, ReactElement, ReactNode } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
-import Animated, { FadeOutDown, SlideInDown } from "react-native-reanimated";
+import Animated, {
+  BounceInDown,
+  BounceOutDown,
+  FadeIn,
+  FadeOutDown,
+  SlideInDown,
+} from "react-native-reanimated";
 
 type SlideUpCardProps = {
   children: ReactNode;

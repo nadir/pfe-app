@@ -1,20 +1,17 @@
 import { useFocusEffect } from "@react-navigation/native";
-import { atom, useAtom } from "jotai";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { BackHandler, StyleSheet, View } from "react-native";
-import { Button, ProgressBar, Text } from "react-native-paper";
-import Animated, { FadeOutDown, SlideInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ActiveForm from "./ActiveForm";
 import { PersonalInfo } from "./PersonalInfo";
 import { ChildInformation } from "./ChildInformation";
 import { UploadProof } from "./UploadProof";
-
-export const activeStepsAtom = atom<number>(0);
+import { useFormStore } from "../../stores/useFormStore";
 
 const SignupScreen = ({ navigation }: any) => {
   const insets = useSafeAreaInsets();
-  const [activeStep, setActiveStep] = useAtom(activeStepsAtom);
+  const { activeStep, setActiveStep } = useFormStore();
+  const { personalInformation, setPersonalInformation } = useFormStore();
 
   useFocusEffect(
     useCallback(() => {

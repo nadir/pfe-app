@@ -17,28 +17,10 @@ import {
 import { NavigationContainer } from "@react-navigation/native";
 import LoginScreen from "./screens/LoginScreen";
 import HomeScreen from "./screens/HomeScreen";
-import { enableScreens } from "react-native-screens";
 import { fontConfig } from "./config/fontConfig";
 import SignupScreen from "./screens/Signup/SignupScreen";
-enableScreens();
-// Prevent native splash screen from autohiding before App component declaration
-SplashScreen.preventAutoHideAsync();
 
-// function HomeScreen({ navigation }: any) {
-//   return (
-//     <View style={styles.container}>
-//       <Text style={styles.text}>Hello World ✨</Text>
-//       {/* button that navigations to Login screen */}
-//       <Button
-//         mode="contained-tonal"
-//         onPress={() => navigation.navigate("Login")}
-//         style={{ marginTop: 20 }}
-//       >
-//         Login
-//       </Button>
-//     </View>
-//   );
-// }
+SplashScreen.preventAutoHideAsync();
 
 const Stack = createStackNavigator();
 

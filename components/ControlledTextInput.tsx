@@ -1,5 +1,5 @@
-import React from "react";
-import { Controller, FieldError } from "react-hook-form";
+import React, { useState } from "react";
+import { Controller, FieldError, set } from "react-hook-form";
 import { TextInputProps, TextInput, HelperText } from "react-native-paper";
 import { View } from "react-native";
 
@@ -8,7 +8,7 @@ interface ControlledTextInputProps {
   name: string;
   label?: string;
   placeholder?: string;
-  secureTextEntry?: boolean;
+  isPassword?: boolean;
   inputProps?: TextInputProps;
   minLength?: number;
   error?: FieldError;
@@ -19,23 +19,17 @@ const ControlledTextInput: React.FC<ControlledTextInputProps> = ({
   name,
   label,
   placeholder,
-  secureTextEntry,
+  isPassword,
   inputProps,
-  minLength,
   error,
 }) => {
+  const [showPassword, setShowPassword] = useState(true);
+
   return (
     <View>
       <Controller
         control={control}
         name={name}
-        rules={{
-          required: { value: true, message: `${name} is required` },
-          minLength: {
-            message: `${name} must be at least ${minLength} characters`,
-            value: minLength || 0,
-          },
-        }}
         render={({ field: { onBlur, onChange, value } }) => (
           <TextInput
             label={label}
@@ -43,7 +37,15 @@ const ControlledTextInput: React.FC<ControlledTextInputProps> = ({
             value={value}
             onBlur={onBlur}
             onChangeText={onChange}
-            secureTextEntry={secureTextEntry}
+            secureTextEntry={isPassword && showPassword}
+            right={
+              isPassword ? (
+                <TextInput.Icon
+                  icon={showPassword ? "eye-off" : "eye"}
+                  onPress={() => setShowPassword(!showPassword)}
+                />
+              ) : null
+            }
             // Styling for text input
             placeholderTextColor="#d5d5d5ea"
             mode="outlined"
