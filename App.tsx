@@ -1,13 +1,7 @@
-import { useCallback } from "react";
-import { Text, View, StyleSheet } from "react-native";
-import {
-  Button,
-  MD2DarkTheme,
-  MD3LightTheme,
-  Provider as PaperProvider,
-  configureFonts,
-} from "react-native-paper";
-import { useFonts } from "expo-font";
+import { useCallback, useEffect, useState } from "react";
+import { StyleSheet } from "react-native";
+import { Provider as PaperProvider, configureFonts } from "react-native-paper";
+import * as Font from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import * as NavigationBar from "expo-navigation-bar";
 import {
@@ -20,26 +14,39 @@ import HomeScreen from "./screens/HomeScreen";
 import { fontConfig } from "./config/fontConfig";
 import SignupScreen from "./screens/Signup/SignupScreen";
 
-SplashScreen.preventAutoHideAsync();
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 const Stack = createStackNavigator();
 
 export default function App() {
-  const [fontsLoaded] = useFonts({
-    "SourceSansPro-Black": require("./assets/fonts/Source_Sans_Pro/SourceSansPro-Black.ttf"),
-    "SourceSansPro-Bold": require("./assets/fonts/Source_Sans_Pro/SourceSansPro-Bold.ttf"),
-    "SourceSansPro-Regular": require("./assets/fonts/Source_Sans_Pro/SourceSansPro-Regular.ttf"),
-  });
-  NavigationBar.setBackgroundColorAsync("#ffffff");
-  NavigationBar.setButtonStyleAsync("dark");
+  const [appReady, setAppReady] = useState(false);
+
+  useEffect(() => {
+    async function prepare() {
+      try {
+        await NavigationBar.setBackgroundColorAsync("#ffffff");
+        await NavigationBar.setButtonStyleAsync("dark");
+        await Font.loadAsync({
+          "SourceSansPro-Black": require("./assets/fonts/Source_Sans_Pro/SourceSansPro-Black.ttf"),
+          "SourceSansPro-Bold": require("./assets/fonts/Source_Sans_Pro/SourceSansPro-Bold.ttf"),
+          "SourceSansPro-Regular": require("./assets/fonts/Source_Sans_Pro/SourceSansPro-Regular.ttf"),
+        });
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        setAppReady(true);
+      }
+    }
+    prepare();
+  }, []);
 
   const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) {
+    if (appReady) {
       await SplashScreen.hideAsync();
     }
-  }, [fontsLoaded]);
+  }, [appReady]);
 
-  if (!fontsLoaded) {
+  if (!appReady) {
     return null;
   }
 

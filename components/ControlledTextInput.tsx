@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { Controller, FieldError, set } from "react-hook-form";
 import { TextInputProps, TextInput, HelperText } from "react-native-paper";
-import { View } from "react-native";
+import { Input, Icon } from "@rneui/themed";
+import { View, StyleSheet } from "react-native";
+import { IconNode } from "@rneui/base";
 
 interface ControlledTextInputProps {
   control: any;
@@ -12,6 +14,7 @@ interface ControlledTextInputProps {
   inputProps?: TextInputProps;
   minLength?: number;
   error?: FieldError;
+  icon?: IconNode;
 }
 
 const ControlledTextInput: React.FC<ControlledTextInputProps> = ({
@@ -20,10 +23,11 @@ const ControlledTextInput: React.FC<ControlledTextInputProps> = ({
   label,
   placeholder,
   isPassword,
-  inputProps,
   error,
+  icon,
 }) => {
-  const [showPassword, setShowPassword] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+  const [focused, setFocused] = useState(false);
 
   return (
     <View>
@@ -31,37 +35,94 @@ const ControlledTextInput: React.FC<ControlledTextInputProps> = ({
         control={control}
         name={name}
         render={({ field: { onBlur, onChange, value } }) => (
-          <TextInput
+          <Input
+            //styles
+            style={{
+              fontFamily: "SourceSansPro-Regular",
+            }}
+            errorStyle={styles.errorStyle}
+            labelStyle={styles.labelStyle}
+            inputContainerStyle={[
+              styles.inputContainerStyle,
+              {
+                borderColor: focused ? "#7976FF" : error ? "red" : "#DADCE1",
+              },
+            ]}
+            containerStyle={styles.containerStyle}
+            //
             label={label}
             placeholder={placeholder}
             value={value}
-            onBlur={onBlur}
+            onFocus={() => {
+              setFocused(true);
+            }}
+            onBlur={() => {
+              isPassword && setShowPassword(false);
+              setFocused(false);
+              onBlur();
+            }}
             onChangeText={onChange}
-            secureTextEntry={isPassword && showPassword}
-            right={
+            secureTextEntry={isPassword && !showPassword}
+            errorMessage={error?.message}
+            renderErrorMessage={false}
+            leftIcon={
+              isPassword ? <Icon type="material-community" name="lock" /> : icon
+            }
+            leftIconContainerStyle={{ marginRight: 10 }}
+            rightIcon={
               isPassword ? (
-                <TextInput.Icon
-                  icon={showPassword ? "eye-off" : "eye"}
+                <Icon
+                  type="material-community"
+                  name={showPassword ? "eye" : "eye-off"}
                   onPress={() => setShowPassword(!showPassword)}
                 />
-              ) : null
+              ) : undefined
             }
             // Styling for text input
-            placeholderTextColor="#d5d5d5ea"
-            mode="outlined"
-            theme={{
-              roundness: 10,
-            }}
-            outlineColor="#d8d8da"
-            activeOutlineColor="#a8a8a8ea"
-            error={error ? true : false}
-            {...inputProps}
+            placeholderTextColor="#9a99b1"
           />
         )}
       />
-      {error && <HelperText type="error">{error?.message}</HelperText>}
     </View>
   );
 };
 
 export default ControlledTextInput;
+
+const styles = StyleSheet.create({
+  inputContainerStyle: {
+    gap: 0,
+    marginVertical: 10,
+    backgroundColor: "white",
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 15,
+    paddingVertical: 0,
+    // very soft shadow
+    shadowColor: "#00000037",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowRadius: 2,
+    shadowOpacity: 1,
+    elevation: 10,
+  },
+  labelStyle: {
+    fontFamily: "SourceSansPro-Regular",
+    color: "#7976FF",
+    paddingVertical: 0,
+
+    fontWeight: "normal",
+  },
+  containerStyle: {
+    minHeight: 50,
+    paddingVertical: 0,
+    paddingHorizontal: 0,
+  },
+  errorStyle: {
+    marginTop: 0,
+    marginLeft: 0,
+    fontFamily: "SourceSansPro-Regular",
+  },
+});

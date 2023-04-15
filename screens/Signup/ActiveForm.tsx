@@ -10,13 +10,18 @@ const FormTitle: React.FC<FormElementProps> = ({ label, active }) => {
   return (
     <View
       style={{
-        padding: 10,
         borderBottomWidth: 2,
+        width: "23%",
+        paddingBottom: 5,
         borderColor: active ? "#7976FF" : "#a7a4a4",
+        justifyContent: "center",
+        alignItems: "center",
       }}
     >
       <Text
         style={{
+          fontSize: 12,
+          textAlign: "center",
           color: active ? "#7976FF" : "#a7a4a4",
         }}
         variant="bodySmall"
@@ -40,9 +45,10 @@ export const ActiveForm: React.FC<{ activeStep: number }> = ({
         paddingHorizontal: 5,
       }}
     >
-      <FormTitle label="Personal Information" active={activeStep === 0} />
-      <FormTitle label="Child Information" active={activeStep === 1} />
-      <FormTitle label="Upload Proof" active={activeStep === 2} />
+      <FormTitle label="Personal data" active={activeStep === 0} />
+      <FormTitle label="Login Details" active={activeStep === 1} />
+      <FormTitle label="Child Details" active={activeStep === 2} />
+      <FormTitle label="Upload Proof" active={activeStep === 3} />
     </View>
   );
 };

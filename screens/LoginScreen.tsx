@@ -6,6 +6,7 @@ import ControlledTextInput from "../components/ControlledTextInput";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { Icon } from "@rneui/base";
 
 const loginSchema = yup.object({
   username: yup.string().required("Username is required"),
@@ -50,28 +51,27 @@ const LoginScreen = ({ navigation }: any) => {
         <ControlledTextInput
           control={control}
           name="username"
-          label="Username"
           placeholder="Enter your username"
+          icon={<Icon type="material-community" name="account" />}
           error={errors.username}
-          inputProps={{
-            left: <TextInput.Icon icon="account" />,
-            style: { ...styles.input },
-            autoCapitalize: "none",
-          }}
+          // inputProps={{
+          //   left: <TextInput.Icon icon="account" />,
+          //   style: { ...styles.input },
+          //   autoCapitalize: "none",
+          // }}
         />
         <ControlledTextInput
           control={control}
           name="password"
-          label="Password"
           placeholder="Enter your password"
           error={errors.password}
           minLength={8}
           isPassword={true}
-          inputProps={{
-            onBlur: () => setSecure(true),
-            left: <TextInput.Icon icon="lock" />,
-            style: { ...styles.input },
-          }}
+          // inputProps={{
+          //   onBlur: () => setSecure(true),
+          //   left: <TextInput.Icon icon="lock" />,
+          //   style: { ...styles.input },
+          // }}
         />
       </View>
 

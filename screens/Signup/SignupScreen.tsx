@@ -5,13 +5,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ActiveForm from "./ActiveForm";
 import { PersonalInfo } from "./PersonalInfo";
 import { ChildInformation } from "./ChildInformation";
+import { LoginInformation } from "./LoginInformation";
 import { UploadProof } from "./UploadProof";
 import { useFormStore } from "../../stores/useFormStore";
 
 const SignupScreen = ({ navigation }: any) => {
   const insets = useSafeAreaInsets();
   const { activeStep, setActiveStep } = useFormStore();
-  const { personalInformation, setPersonalInformation } = useFormStore();
 
   useFocusEffect(
     useCallback(() => {
@@ -47,8 +47,9 @@ const SignupScreen = ({ navigation }: any) => {
       <ActiveForm activeStep={activeStep}></ActiveForm>
       {/* // switch case render active step */}
       {activeStep === 0 && <PersonalInfo />}
-      {activeStep === 1 && <ChildInformation />}
-      {activeStep === 2 && <UploadProof />}
+      {activeStep === 1 && <LoginInformation />}
+      {activeStep === 2 && <ChildInformation />}
+      {activeStep === 3 && <UploadProof />}
     </View>
   );
 };

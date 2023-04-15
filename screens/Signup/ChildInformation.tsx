@@ -77,7 +77,7 @@ export function ChildInformation({ navigation }: any) {
         mode="contained"
         labelStyle={{ fontFamily: "SourceSansPro-Bold" }}
         style={{ marginVertical: 30 }}
-        onPress={() => setActiveStep(2)}
+        onPress={() => setActiveStep(3)}
       >
         Next
       </Button>
