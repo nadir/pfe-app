@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Button, Image, View, Platform, Text } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { TouchableRipple } from "react-native-paper";
+import { Icon } from "@rneui/base";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function ImagePickerExample() {
   const [image, setImage] = useState<string | null>(null);
@@ -28,18 +30,34 @@ export default function ImagePickerExample() {
           flex: 1,
           alignSelf: "stretch",
           borderRadius: 20,
-          marginVertical: 40,
+          marginVertical: 25,
           backgroundColor: "#f1f1f1",
           justifyContent: "center",
           alignItems: "center",
         }}
       >
-        <Text style={{ color: "#929292", fontSize: 20 }}>Upload Image</Text>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 20,
+            padding: 20,
+          }}
+        >
+          <Ionicons name="document-attach-outline" size={60} color="grey" />
+          <Text
+            style={{
+              color: "#929292",
+              fontSize: 16,
+              fontFamily: "SourceSansPro-Regular",
+              textAlign: "center",
+            }}
+          >
+            Upload a picture of your child's school certificate
+          </Text>
+        </View>
       </TouchableRipple>
-
-      {image && (
-        <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />
-      )}
     </View>
   );
 }

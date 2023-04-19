@@ -36,7 +36,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     width: "100%",
-    alignSelf: "flex-start",
     shadowColor: "#0000002d",
     shadowOffset: {
       width: 0,

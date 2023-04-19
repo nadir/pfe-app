@@ -1,7 +1,7 @@
 import { parse, isValid } from "date-fns";
 import * as yup from "yup";
 
-export const personalInfoSchema = yup.object().shape({
+export const childInfoSchema = yup.object().shape({
   firstName: yup
     .string()
     .required("First Name is required")
@@ -25,9 +25,5 @@ export const personalInfoSchema = yup.object().shape({
       if (date.getFullYear() < 1900) return false;
       return true;
     }),
-  phoneNumber: yup
-    .string()
-    .required("Phone number is required")
-    .matches(/^[0-9]{10}$/, "Phone number is invalid"),
-  address: yup.string(),
+  class: yup.string().required("Class is required"),
 });

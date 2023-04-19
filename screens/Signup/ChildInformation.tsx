@@ -1,83 +1,120 @@
-import { Button, TextInput } from "react-native-paper";
+import { Button } from "react-native-paper";
 import SlideUpCard from "../../components/SlideUpCard";
 import { Text } from "react-native-paper";
 import { useForm } from "react-hook-form";
-import { ScrollView, View } from "react-native";
+import { Platform, ScrollView } from "react-native";
 import ControlledTextInput from "../../components/ControlledTextInput";
+import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
+import { format } from "date-fns";
 import { useFormStore } from "../../stores/useFormStore";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useState } from "react";
+import { Icon } from "@rneui/base";
+import { childInfoSchema } from "../../validation/childInfo";
 
 export function ChildInformation({ navigation }: any) {
   const { setActiveStep } = useFormStore();
+
+  const { childInformation, setChildInformation } = useFormStore();
+
   const {
     control,
     handleSubmit,
+    setValue,
+    getValues,
     formState: { errors },
   } = useForm({
-    defaultValues: {
-      firstName: "",
-      lastName: "",
-      username: "",
-      password: "",
-    },
+    resolver: yupResolver(childInfoSchema),
+    defaultValues: childInformation,
   });
+
+  const onSubmit = (data: any) => {
+    setChildInformation(data);
+    setActiveStep(3);
+  };
+
+  const [loading, setLoading] = useState(false);
+
   return (
     <SlideUpCard>
-      <Text variant="headlineSmall">Enter your Child's information</Text>
+      <Text variant="headlineSmall">Enter your Child's Information</Text>
       <ScrollView
-        style={{ marginVertical: 10 }}
-        contentContainerStyle={{ gap: 20 }}
+        style={{ marginVertical: 0 }}
+        contentContainerStyle={{ paddingVertical: 5 }}
       >
         <ControlledTextInput
           control={control}
           name="firstName"
           label="First Name"
-          placeholder="Enter your First Name"
-          error={errors.username}
-          inputProps={{
-            left: <TextInput.Icon icon="account" />,
-            autoCapitalize: "none",
-          }}
+          placeholder="First Name"
+          autoCorrect={false}
+          error={errors.firstName}
+          icon={<Icon type="material-community" name="account" />}
         />
         <ControlledTextInput
           control={control}
-          name="lantName"
+          name="lastName"
           label="Last Name"
-          placeholder="Enter your Last Name"
-          error={errors.username}
-          inputProps={{
-            left: <TextInput.Icon icon="account" />,
-            autoCapitalize: "none",
-          }}
+          placeholder="Last Name"
+          autoComplete="name-family"
+          autoCorrect={false}
+          icon={<Icon type="material-community" name="account" />}
+          error={errors.lastName}
         />
         <ControlledTextInput
           control={control}
-          name="username"
-          label="Username"
-          placeholder="Enter your username"
-          error={errors.username}
-          inputProps={{
-            left: <TextInput.Icon icon="account" />,
-            autoCapitalize: "none",
-          }}
-        />
-        <ControlledTextInput
-          control={control}
-          name="Data of Birth"
+          name="dateOfBirth"
           label="Date of Birth"
-          placeholder="Enter your Date of Birth"
-          error={errors.username}
-          inputProps={{
-            left: <TextInput.Icon icon="account" />,
-            autoCapitalize: "none",
-          }}
+          keyboardType="numbers-and-punctuation"
+          placeholder="dd/mm/yyyy"
+          icon={
+            <Icon
+              type="material-community"
+              name="calendar"
+              onPress={() => {
+                if (Platform.OS === "android") {
+                  DateTimePickerAndroid.open({
+                    value: new Date(),
+                    mode: "date",
+                    onChange: (event, date) => {
+                      if (event.type === "set") {
+                        setValue(
+                          "dateOfBirth",
+                          date ? format(date, "dd/MM/yyyy") : ""
+                        );
+                      }
+                    },
+                  });
+                }
+              }}
+            />
+          }
+          error={errors.dateOfBirth}
+        />
+        <ControlledTextInput
+          control={control}
+          name="class"
+          label="Class"
+          placeholder="Class"
+          autoComplete="name-family"
+          autoCorrect={false}
+          icon={<Icon type="material-community" name="school" />}
+          error={errors.class}
         />
       </ScrollView>
       <Button
         buttonColor="#7976FF"
         mode="contained"
+        loading={loading}
+        disabled={loading}
         labelStyle={{ fontFamily: "SourceSansPro-Bold" }}
+        onPressIn={() => setLoading(true)}
+        onPress={() => {
+          // submit form data and only proceed to next step if it's valid
+          handleSubmit(onSubmit)();
+          setLoading(false);
+        }}
         style={{ marginVertical: 30 }}
-        onPress={() => setActiveStep(3)}
       >
         Next
       </Button>

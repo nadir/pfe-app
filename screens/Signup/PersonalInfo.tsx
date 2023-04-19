@@ -48,6 +48,8 @@ export function PersonalInfo({ navigation }: any) {
           name="firstName"
           label="First Name"
           placeholder="Enter your First Name"
+          autoComplete="name"
+          autoCorrect={false}
           error={errors.firstName}
           icon={<Icon type="material-community" name="account" />}
         />
@@ -56,6 +58,8 @@ export function PersonalInfo({ navigation }: any) {
           name="lastName"
           label="Last Name"
           placeholder="Enter your Last Name"
+          autoComplete="name-family"
+          autoCorrect={false}
           icon={<Icon type="material-community" name="account" />}
           error={errors.lastName}
         />
@@ -63,6 +67,8 @@ export function PersonalInfo({ navigation }: any) {
           control={control}
           name="dateOfBirth"
           label="Date of Birth"
+          autoComplete="birthdate-full"
+          keyboardType="numbers-and-punctuation"
           placeholder="dd/mm/yyyy"
           icon={
             <Icon
@@ -93,6 +99,8 @@ export function PersonalInfo({ navigation }: any) {
           name="phoneNumber"
           label="Phone Number"
           placeholder="(xx xx xx xx xx)"
+          keyboardType="phone-pad"
+          autoComplete="tel"
           icon={<Icon type="material-community" name="phone" />}
           error={errors.phoneNumber}
         />
@@ -101,6 +109,7 @@ export function PersonalInfo({ navigation }: any) {
           name="address"
           label="Address"
           placeholder="Please Enter your Address"
+          autoComplete="street-address"
           icon={<Icon type="material-community" name="map-marker" />}
           error={errors.address}
           minLength={8}

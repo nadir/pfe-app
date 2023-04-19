@@ -51,8 +51,8 @@ export function LoginInformation({ navigation }: any) {
         <ControlledTextInput
           control={control}
           name="username"
-          label="username"
-          placeholder="Enter your Last Name"
+          label="Username"
+          placeholder="Enter a username"
           icon={<Icon type="material-community" name="account" />}
           error={errors.username}
         />
@@ -60,7 +60,7 @@ export function LoginInformation({ navigation }: any) {
         <ControlledTextInput
           control={control}
           name="password"
-          label="password"
+          label="Password"
           placeholder="Enter a password"
           isPassword
           icon={<Icon type="material-community" name="lock" />}

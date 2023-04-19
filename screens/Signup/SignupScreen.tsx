@@ -42,6 +42,7 @@ const SignupScreen = ({ navigation }: any) => {
         paddingRight: insets.right,
         backgroundColor: "#F5F5F5",
         flex: 1,
+        justifyContent: "space-between",
       }}
     >
       <ActiveForm activeStep={activeStep}></ActiveForm>

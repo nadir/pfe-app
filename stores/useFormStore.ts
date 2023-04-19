@@ -15,6 +15,13 @@ type LoginInformation = {
   confirmPassword: string;
 };
 
+type ChildInformation = {
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  class: string;
+};
+
 type FormState = {
   activeStep: number;
   setActiveStep: (activeStep: number) => void;
@@ -22,6 +29,8 @@ type FormState = {
   setPersonalInformation: (personalInformation: PersonalInformation) => void;
   loginInformation: LoginInformation;
   setLoginInformation: (loginInformation: LoginInformation) => void;
+  childInformation: ChildInformation;
+  setChildInformation: (childInformation: ChildInformation) => void;
 };
 
 export const useFormStore = create<FormState>((set) => ({
@@ -44,4 +53,12 @@ export const useFormStore = create<FormState>((set) => ({
   },
   setLoginInformation: (loginInformation) =>
     set((state) => ({ ...state, loginInformation })),
+  childInformation: {
+    firstName: "",
+    lastName: "",
+    dateOfBirth: "",
+    class: "",
+  },
+  setChildInformation: (childInformation) =>
+    set((state) => ({ ...state, childInformation })),
 }));

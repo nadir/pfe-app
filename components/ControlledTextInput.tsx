@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { Controller, FieldError, set } from "react-hook-form";
-import { TextInputProps, TextInput, HelperText } from "react-native-paper";
 import { Input, Icon } from "@rneui/themed";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, TextInputProps } from "react-native";
 import { IconNode } from "@rneui/base";
 
 interface ControlledTextInputProps {
@@ -11,10 +10,14 @@ interface ControlledTextInputProps {
   label?: string;
   placeholder?: string;
   isPassword?: boolean;
-  inputProps?: TextInputProps;
   minLength?: number;
   error?: FieldError;
   icon?: IconNode;
+  autoCapitalize?: TextInputProps["autoCapitalize"];
+  keyboardType?: TextInputProps["keyboardType"];
+  autoCorrect?: TextInputProps["autoCorrect"];
+  autoComplete?: TextInputProps["autoComplete"];
+  textContentType?: TextInputProps["textContentType"];
 }
 
 const ControlledTextInput: React.FC<ControlledTextInputProps> = ({
@@ -25,6 +28,11 @@ const ControlledTextInput: React.FC<ControlledTextInputProps> = ({
   isPassword,
   error,
   icon,
+  autoCapitalize,
+  keyboardType,
+  autoCorrect,
+  autoComplete,
+  textContentType,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -39,6 +47,7 @@ const ControlledTextInput: React.FC<ControlledTextInputProps> = ({
             //styles
             style={{
               fontFamily: "SourceSansPro-Regular",
+              fontSize: 15,
             }}
             errorStyle={styles.errorStyle}
             labelStyle={styles.labelStyle}
@@ -49,6 +58,12 @@ const ControlledTextInput: React.FC<ControlledTextInputProps> = ({
               },
             ]}
             containerStyle={styles.containerStyle}
+            // meta
+            autoCapitalize={autoCapitalize}
+            keyboardType={keyboardType}
+            autoCorrect={autoCorrect}
+            autoComplete={autoComplete}
+            textContentType={textContentType}
             //
             label={label}
             placeholder={placeholder}
@@ -91,11 +106,12 @@ export default ControlledTextInput;
 
 const styles = StyleSheet.create({
   inputContainerStyle: {
+    fontSize: 12,
     gap: 0,
     marginVertical: 10,
     backgroundColor: "white",
     borderWidth: 1,
-    borderRadius: 5,
+    borderRadius: 10,
     paddingHorizontal: 15,
     paddingVertical: 0,
     // very soft shadow
@@ -109,7 +125,8 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   labelStyle: {
-    fontFamily: "SourceSansPro-Regular",
+    fontSize: 13,
+    fontFamily: "SourceSansPro-Bold",
     color: "#7976FF",
     paddingVertical: 0,
 
