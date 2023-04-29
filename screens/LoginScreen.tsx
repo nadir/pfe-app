@@ -7,6 +7,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Icon } from "@rneui/base";
+import * as SecureStore from "expo-secure-store";
+import * as Haptics from "expo-haptics";
+import Error from "../components/Error";
+
+import { useFormStore } from "../stores/useFormStore";
 
 const loginSchema = yup.object({
   username: yup.string().required("Username is required"),
@@ -17,13 +22,14 @@ const loginSchema = yup.object({
 });
 
 const LoginScreen = ({ navigation }: any) => {
-  const [secure, setSecure] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { setToken } = useFormStore();
 
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    setFocus,
+    formState: { errors, isSubmitting },
   } = useForm({
     resolver: yupResolver(loginSchema),
     defaultValues: {
@@ -32,8 +38,29 @@ const LoginScreen = ({ navigation }: any) => {
     },
   });
 
-  const onSubmit = (data: any) => {
-    console.log(data);
+  const onSubmit = async (data: yup.InferType<typeof loginSchema>) => {
+    let options = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    };
+    try {
+      const response = await fetch(
+        "http://192.168.100.103:6969/auth/login",
+        options
+      );
+      const json = await response.json();
+      if (!response.ok) {
+        setError(json.message);
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+        return;
+      }
+      await SecureStore.setItemAsync("token", json.token);
+      await setToken(json.token);
+    } catch (error) {
+      setError("Something went wrong");
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    }
   };
 
   return (
@@ -47,31 +74,29 @@ const LoginScreen = ({ navigation }: any) => {
       >
         Login to your account
       </Text>
-      <View style={{ gap: 20 }}>
+      {error && <Error message={error} />}
+      <View>
         <ControlledTextInput
           control={control}
           name="username"
           placeholder="Enter your username"
           icon={<Icon type="material-community" name="account" />}
           error={errors.username}
-          // inputProps={{
-          //   left: <TextInput.Icon icon="account" />,
-          //   style: { ...styles.input },
-          //   autoCapitalize: "none",
-          // }}
+          autoCapitalize="none"
+          autoCorrect={false}
+          onSubmitEditing={() => {
+            setFocus("password");
+          }}
         />
         <ControlledTextInput
           control={control}
           name="password"
           placeholder="Enter your password"
+          autoComplete="password"
           error={errors.password}
-          minLength={8}
+          autoCapitalize="none"
           isPassword={true}
-          // inputProps={{
-          //   onBlur: () => setSecure(true),
-          //   left: <TextInput.Icon icon="lock" />,
-          //   style: { ...styles.input },
-          // }}
+          onSubmitEditing={handleSubmit(onSubmit)}
         />
       </View>
 
@@ -79,14 +104,13 @@ const LoginScreen = ({ navigation }: any) => {
         mode="contained"
         style={styles.btn}
         labelStyle={{ fontFamily: "SourceSansPro-Bold" }}
-        onPressIn={() => setIsLoading(true)}
         onPress={() => {
+          setError(null);
           Keyboard.dismiss();
           handleSubmit(onSubmit)();
-          setIsLoading(false);
         }}
-        loading={isLoading}
-        disabled={isLoading}
+        loading={isSubmitting}
+        disabled={isSubmitting}
         buttonColor="#7976FF"
         icon="arrow-right"
       >
@@ -126,7 +150,6 @@ const styles = StyleSheet.create({
   },
   btn: {
     marginVertical: 20,
-    // borderRadius: 5,
   },
   input: {
     alignSelf: "stretch",

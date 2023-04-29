@@ -31,3 +31,5 @@ export const personalInfoSchema = yup.object().shape({
     .matches(/^[0-9]{10}$/, "Phone number is invalid"),
   address: yup.string(),
 });
+
+export type PersonalInformation = yup.InferType<typeof personalInfoSchema>;

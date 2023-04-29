@@ -1,4 +1,6 @@
 import { create } from "zustand";
+import * as SecureStore from "expo-secure-store";
+import { ImagePickerAsset } from "expo-image-picker";
 
 type PersonalInformation = {
   firstName: string;
@@ -31,6 +33,11 @@ type FormState = {
   setLoginInformation: (loginInformation: LoginInformation) => void;
   childInformation: ChildInformation;
   setChildInformation: (childInformation: ChildInformation) => void;
+  proofOfEnrollment: string;
+  setProofOfEnrollment: (proofOfEnrollment: string) => void;
+  token: string | null;
+  setToken: (token: string | null) => void;
+  logout: () => void;
 };
 
 export const useFormStore = create<FormState>((set) => ({
@@ -61,4 +68,13 @@ export const useFormStore = create<FormState>((set) => ({
   },
   setChildInformation: (childInformation) =>
     set((state) => ({ ...state, childInformation })),
+  token: "",
+  setToken: (token) => set((state) => ({ ...state, token })),
+  logout: async () => {
+    await SecureStore.deleteItemAsync("token");
+    set((state) => ({ ...state, token: null }));
+  },
+  proofOfEnrollment: "",
+  setProofOfEnrollment: (proofOfEnrollment) =>
+    set((state) => ({ ...state, proofOfEnrollment })),
 }));

@@ -1,6 +1,6 @@
 import { useFocusEffect } from "@react-navigation/native";
-import { useCallback, useEffect } from "react";
-import { BackHandler, StyleSheet, View } from "react-native";
+import { useCallback } from "react";
+import { BackHandler, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ActiveForm from "./ActiveForm";
 import { PersonalInfo } from "./PersonalInfo";

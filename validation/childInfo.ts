@@ -27,3 +27,5 @@ export const childInfoSchema = yup.object().shape({
     }),
   class: yup.string().required("Class is required"),
 });
+
+export type ChildInfo = yup.InferType<typeof childInfoSchema>;

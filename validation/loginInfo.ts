@@ -17,3 +17,5 @@ export const loginInfoSchema = yup.object().shape({
     .required("Confirm Password is required")
     .oneOf([yup.ref("password")], "Passwords must match"),
 });
+
+export type LoginInfo = yup.InferType<typeof loginInfoSchema>;

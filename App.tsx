@@ -3,6 +3,7 @@ import { StyleSheet } from "react-native";
 import { Provider as PaperProvider, configureFonts } from "react-native-paper";
 import * as Font from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
+import * as SecureStore from "expo-secure-store";
 import * as NavigationBar from "expo-navigation-bar";
 import {
   TransitionPresets,
@@ -10,16 +11,31 @@ import {
 } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
 import LoginScreen from "./screens/LoginScreen";
-import HomeScreen from "./screens/HomeScreen";
 import { fontConfig } from "./config/fontConfig";
 import SignupScreen from "./screens/Signup/SignupScreen";
+import { useFormStore } from "./stores/useFormStore";
+import WelcomeScreen from "./screens/WelcomeScreen";
+
+import { createIconSetFromIcoMoon } from "@expo/vector-icons";
+import MainScreen from "./screens/MainScreen";
+import Toast from "react-native-toast-message";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 const Stack = createStackNavigator();
 
+export const Icon = createIconSetFromIcoMoon(
+  require("./assets/icons/selection.json"),
+  "Icons8",
+  "icons8.ttf"
+);
+
 export default function App() {
   const [appReady, setAppReady] = useState(false);
+  const { token, setToken } = useFormStore((state) => ({
+    token: state.token,
+    setToken: state.setToken,
+  }));
 
   useEffect(() => {
     async function prepare() {
@@ -27,10 +43,15 @@ export default function App() {
         await NavigationBar.setBackgroundColorAsync("#ffffff");
         await NavigationBar.setButtonStyleAsync("dark");
         await Font.loadAsync({
+          Icons8: require("./assets/icons/icons8.ttf"),
           "SourceSansPro-Black": require("./assets/fonts/Source_Sans_Pro/SourceSansPro-Black.ttf"),
           "SourceSansPro-Bold": require("./assets/fonts/Source_Sans_Pro/SourceSansPro-Bold.ttf"),
           "SourceSansPro-Regular": require("./assets/fonts/Source_Sans_Pro/SourceSansPro-Regular.ttf"),
         });
+        const token = await SecureStore.getItemAsync("token");
+        if (token) {
+          setToken(token);
+        }
       } catch (e) {
         console.warn(e);
       } finally {
@@ -67,11 +88,24 @@ export default function App() {
             ...TransitionPresets.SlideFromRightIOS,
           }}
         >
-          <Stack.Screen name="Home" component={HomeScreen} />
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="Signup" component={SignupScreen} />
+          {token ? (
+            <Stack.Screen
+              name="Account"
+              component={MainScreen}
+              options={{
+                headerShown: false,
+              }}
+            />
+          ) : (
+            <>
+              <Stack.Screen name="Home" component={WelcomeScreen} />
+              <Stack.Screen name="Login" component={LoginScreen} />
+              <Stack.Screen name="Signup" component={SignupScreen} />
+            </>
+          )}
         </Stack.Navigator>
       </NavigationContainer>
+      <Toast />
     </PaperProvider>
   );
 }

@@ -4,7 +4,7 @@ import { Button } from "react-native-paper";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 
-const HomeScreen = ({ navigation }: any) => {
+const WelcomeScreen = ({ navigation }: any) => {
   const [animation, setAnimation] = useState<any>(null);
   const lottie = useRef<any>(null);
   useLayoutEffect(() => {
@@ -84,7 +84,7 @@ const HomeScreen = ({ navigation }: any) => {
   );
 };
 
-export default HomeScreen;
+export default WelcomeScreen;
 
 const styles = StyleSheet.create({
   container: {

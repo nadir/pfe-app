@@ -10,9 +10,10 @@ interface ControlledTextInputProps {
   label?: string;
   placeholder?: string;
   isPassword?: boolean;
-  minLength?: number;
   error?: FieldError;
   icon?: IconNode;
+  maxLength?: number;
+  onSubmitEditing?: TextInputProps["onSubmitEditing"];
   autoCapitalize?: TextInputProps["autoCapitalize"];
   keyboardType?: TextInputProps["keyboardType"];
   autoCorrect?: TextInputProps["autoCorrect"];
@@ -33,6 +34,8 @@ const ControlledTextInput: React.FC<ControlledTextInputProps> = ({
   autoCorrect,
   autoComplete,
   textContentType,
+  onSubmitEditing,
+  maxLength,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -42,19 +45,20 @@ const ControlledTextInput: React.FC<ControlledTextInputProps> = ({
       <Controller
         control={control}
         name={name}
-        render={({ field: { onBlur, onChange, value } }) => (
+        render={({ field: { onBlur, onChange, value, ref } }) => (
           <Input
             //styles
             style={{
               fontFamily: "SourceSansPro-Regular",
               fontSize: 15,
             }}
+            ref={ref}
             errorStyle={styles.errorStyle}
             labelStyle={styles.labelStyle}
             inputContainerStyle={[
               styles.inputContainerStyle,
               {
-                borderColor: focused ? "#7976FF" : error ? "red" : "#DADCE1",
+                borderColor: error ? "red" : focused ? "#7976FF" : "#DADCE1",
               },
             ]}
             containerStyle={styles.containerStyle}
@@ -64,6 +68,7 @@ const ControlledTextInput: React.FC<ControlledTextInputProps> = ({
             autoCorrect={autoCorrect}
             autoComplete={autoComplete}
             textContentType={textContentType}
+            maxLength={maxLength}
             //
             label={label}
             placeholder={placeholder}
@@ -77,6 +82,7 @@ const ControlledTextInput: React.FC<ControlledTextInputProps> = ({
               onBlur();
             }}
             onChangeText={onChange}
+            onSubmitEditing={onSubmitEditing}
             secureTextEntry={isPassword && !showPassword}
             errorMessage={error?.message}
             renderErrorMessage={false}

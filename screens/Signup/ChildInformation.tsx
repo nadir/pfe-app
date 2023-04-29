@@ -11,6 +11,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useState } from "react";
 import { Icon } from "@rneui/base";
 import { childInfoSchema } from "../../validation/childInfo";
+import DatePickerInputButton from "../../components/DatePickerInputButton";
 
 export function ChildInformation({ navigation }: any) {
   const { setActiveStep } = useFormStore();
@@ -21,8 +22,8 @@ export function ChildInformation({ navigation }: any) {
     control,
     handleSubmit,
     setValue,
-    getValues,
-    formState: { errors },
+    setFocus,
+    formState: { errors, isSubmitting },
   } = useForm({
     resolver: yupResolver(childInfoSchema),
     defaultValues: childInformation,
@@ -47,19 +48,27 @@ export function ChildInformation({ navigation }: any) {
           name="firstName"
           label="First Name"
           placeholder="First Name"
+          autoCapitalize="words"
           autoCorrect={false}
           error={errors.firstName}
           icon={<Icon type="material-community" name="account" />}
+          onSubmitEditing={() => {
+            setFocus("lastName");
+          }}
         />
         <ControlledTextInput
           control={control}
           name="lastName"
           label="Last Name"
+          autoCapitalize="words"
           placeholder="Last Name"
           autoComplete="name-family"
           autoCorrect={false}
           icon={<Icon type="material-community" name="account" />}
           error={errors.lastName}
+          onSubmitEditing={() => {
+            setFocus("dateOfBirth");
+          }}
         />
         <ControlledTextInput
           control={control}
@@ -68,28 +77,23 @@ export function ChildInformation({ navigation }: any) {
           keyboardType="numbers-and-punctuation"
           placeholder="dd/mm/yyyy"
           icon={
-            <Icon
-              type="material-community"
-              name="calendar"
-              onPress={() => {
-                if (Platform.OS === "android") {
-                  DateTimePickerAndroid.open({
-                    value: new Date(),
-                    mode: "date",
-                    onChange: (event, date) => {
-                      if (event.type === "set") {
-                        setValue(
-                          "dateOfBirth",
-                          date ? format(date, "dd/MM/yyyy") : ""
-                        );
-                      }
-                    },
-                  });
-                }
+            <DatePickerInputButton
+              error={errors.dateOfBirth ? true : false}
+              onSet={(value: number | Date) => {
+                setValue(
+                  "dateOfBirth",
+                  format(value, "dd/MM/yyyy").toString(),
+                  {
+                    shouldValidate: true,
+                  }
+                );
               }}
             />
           }
           error={errors.dateOfBirth}
+          onSubmitEditing={() => {
+            setFocus("class");
+          }}
         />
         <ControlledTextInput
           control={control}
@@ -100,19 +104,20 @@ export function ChildInformation({ navigation }: any) {
           autoCorrect={false}
           icon={<Icon type="material-community" name="school" />}
           error={errors.class}
+          onSubmitEditing={() => {
+            handleSubmit(onSubmit)();
+          }}
         />
       </ScrollView>
       <Button
         buttonColor="#7976FF"
         mode="contained"
-        loading={loading}
-        disabled={loading}
+        loading={isSubmitting}
+        disabled={isSubmitting}
         labelStyle={{ fontFamily: "SourceSansPro-Bold" }}
-        onPressIn={() => setLoading(true)}
         onPress={() => {
           // submit form data and only proceed to next step if it's valid
           handleSubmit(onSubmit)();
-          setLoading(false);
         }}
         style={{ marginVertical: 30 }}
       >

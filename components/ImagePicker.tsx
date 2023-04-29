@@ -1,23 +1,27 @@
 import React, { useState, useEffect } from "react";
-import { Button, Image, View, Platform, Text } from "react-native";
+import { Button, Image, View, Platform, Text, StyleSheet } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { TouchableRipple } from "react-native-paper";
 import { Icon } from "@rneui/base";
 import { Ionicons } from "@expo/vector-icons";
+import { useFormStore } from "../stores/useFormStore";
 
-export default function ImagePickerExample() {
-  const [image, setImage] = useState<string | null>(null);
+export default function ImagePickerPrompt() {
+  const { image, setImage } = useFormStore((state) => ({
+    image: state.proofOfEnrollment,
+    setImage: state.setProofOfEnrollment,
+  }));
 
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 1,
       selectionLimit: 1,
     });
 
     if (!result.canceled) {
-      console.log(result.assets[0].uri);
+      setImage(result.assets[0].uri);
     }
   };
 
@@ -25,16 +29,12 @@ export default function ImagePickerExample() {
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
       <TouchableRipple
         onPress={pickImage}
-        rippleColor="rgba(0, 0, 0, .09)"
-        style={{
-          flex: 1,
-          alignSelf: "stretch",
-          borderRadius: 20,
-          marginVertical: 25,
-          backgroundColor: "#f1f1f1",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
+        rippleColor="rgba(199, 199, 199, 0.09)"
+        borderless={true}
+        style={[
+          styles.container,
+          image ? styles.containerActive : styles.containerInactive,
+        ]}
       >
         <View
           style={{
@@ -45,14 +45,17 @@ export default function ImagePickerExample() {
             padding: 20,
           }}
         >
-          <Ionicons name="document-attach-outline" size={60} color="grey" />
+          {image ? (
+            <Ionicons name="checkmark-circle" size={60} color="green" />
+          ) : (
+            <Ionicons name="document-attach-outline" size={60} color="grey" />
+          )}
+
           <Text
-            style={{
-              color: "#929292",
-              fontSize: 16,
-              fontFamily: "SourceSansPro-Regular",
-              textAlign: "center",
-            }}
+            style={[
+              styles.text,
+              image ? styles.textActive : styles.textInactive,
+            ]}
           >
             Upload a picture of your child's school certificate
           </Text>
@@ -61,3 +64,34 @@ export default function ImagePickerExample() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  text: {
+    fontSize: 16,
+    fontFamily: "SourceSansPro-Regular",
+    textAlign: "center",
+  },
+  textActive: {
+    color: "#425e40",
+  },
+  textInactive: {
+    color: "#929292",
+  },
+  container: {
+    flex: 1,
+    alignSelf: "stretch",
+    borderRadius: 10,
+    marginVertical: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    borderColor: "#7aa677",
+  },
+  containerActive: {
+    backgroundColor: "#fafffb",
+    borderWidth: 0.4,
+    borderColor: "#a6c0a5",
+  },
+  containerInactive: {
+    backgroundColor: "#f5f5f5",
+  },
+});
