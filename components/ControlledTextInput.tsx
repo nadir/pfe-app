@@ -55,6 +55,7 @@ const ControlledTextInput: React.FC<ControlledTextInputProps> = ({
             ref={ref}
             errorStyle={styles.errorStyle}
             labelStyle={styles.labelStyle}
+            blurOnSubmit={false}
             inputContainerStyle={[
               styles.inputContainerStyle,
               {

@@ -1,15 +1,30 @@
 import { useCallback, useEffect, useState } from "react";
-import { StyleSheet } from "react-native";
-import { Provider as PaperProvider, configureFonts } from "react-native-paper";
+import { AppState, AppStateStatus, Platform, StyleSheet } from "react-native";
+import {
+  DefaultTheme,
+  Provider as PaperProvider,
+  configureFonts,
+} from "react-native-paper";
+import {
+  QueryClient,
+  QueryClientProvider,
+  focusManager,
+  onlineManager,
+} from "react-query";
 import * as Font from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import * as SecureStore from "expo-secure-store";
 import * as NavigationBar from "expo-navigation-bar";
+import * as Linking from "expo-linking";
 import {
   TransitionPresets,
   createStackNavigator,
 } from "@react-navigation/stack";
-import { NavigationContainer } from "@react-navigation/native";
+import {
+  NavigationContainer,
+  createNavigationContainerRef,
+  useNavigation,
+} from "@react-navigation/native";
 import LoginScreen from "./screens/LoginScreen";
 import { fontConfig } from "./config/fontConfig";
 import SignupScreen from "./screens/Signup/SignupScreen";
@@ -19,6 +34,14 @@ import WelcomeScreen from "./screens/WelcomeScreen";
 import { createIconSetFromIcoMoon } from "@expo/vector-icons";
 import MainScreen from "./screens/MainScreen";
 import Toast from "react-native-toast-message";
+import { StatusBar } from "expo-status-bar";
+import NetInfo from "@react-native-community/netinfo";
+
+import messaging from "@react-native-firebase/messaging";
+
+import Constants from "expo-constants";
+import { utils } from "@react-native-firebase/app";
+import { API_URL } from "./config/constants";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -30,6 +53,40 @@ export const Icon = createIconSetFromIcoMoon(
   "icons8.ttf"
 );
 
+const { isAvailable } = utils().playServicesAvailability;
+
+// request permission for notifications for firebase
+async function requestUserPermission() {
+  if (Constants.executionEnvironment === "bare") {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+    if (enabled) {
+      console.log("Authorization status:", authStatus);
+    }
+  }
+}
+
+const queryClient = new QueryClient();
+
+// refetch data on app focus
+function onAppStateChange(status: AppStateStatus) {
+  if (Platform.OS !== "web") {
+    focusManager.setFocused(status === "active");
+  }
+}
+// refetch data on app online
+onlineManager.setEventListener((setOnline) => {
+  return NetInfo.addEventListener((state) => {
+    setOnline(!!state.isConnected);
+  });
+});
+
+// create navigation ref for notifications
+const navigationRef = createNavigationContainerRef();
+
 export default function App() {
   const [appReady, setAppReady] = useState(false);
   const { token, setToken } = useFormStore((state) => ({
@@ -38,10 +95,14 @@ export default function App() {
   }));
 
   useEffect(() => {
+    if (Constants.executionEnvironment === "bare") {
+    }
+
     async function prepare() {
       try {
         await NavigationBar.setBackgroundColorAsync("#ffffff");
         await NavigationBar.setButtonStyleAsync("dark");
+        await requestUserPermission();
         await Font.loadAsync({
           Icons8: require("./assets/icons/icons8.ttf"),
           "SourceSansPro-Black": require("./assets/fonts/Source_Sans_Pro/SourceSansPro-Black.ttf"),
@@ -52,6 +113,29 @@ export default function App() {
         if (token) {
           setToken(token);
         }
+
+        // firebase related stuff
+        if (Constants.executionEnvironment === "bare") {
+          if (isAvailable) {
+            const fcmToken = await messaging().getToken();
+            if (fcmToken && token) {
+              await fetch(`${API_URL}/user/firebase/token`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                  token: fcmToken,
+                }),
+              });
+            }
+
+            // handle notifications opened from background
+          } else {
+            console.log("play services not available");
+          }
+        }
       } catch (e) {
         console.warn(e);
       } finally {
@@ -59,6 +143,11 @@ export default function App() {
       }
     }
     prepare();
+
+    // react-query refetch on app focus subscription
+    const subscription = AppState.addEventListener("change", onAppStateChange);
+
+    return () => subscription.remove();
   }, []);
 
   const onLayoutRootView = useCallback(async () => {
@@ -78,35 +167,108 @@ export default function App() {
   };
 
   return (
-    <PaperProvider>
-      <NavigationContainer onReady={onLayoutRootView}>
-        <Stack.Navigator
-          detachInactiveScreens={true}
-          initialRouteName="Home"
-          screenOptions={{
-            headerShown: false,
-            ...TransitionPresets.SlideFromRightIOS,
+    <QueryClientProvider client={queryClient}>
+      <PaperProvider
+        theme={{
+          ...DefaultTheme,
+          dark: false,
+          colors: {
+            ...DefaultTheme.colors,
+          },
+        }}
+      >
+        <NavigationContainer
+          onReady={onLayoutRootView}
+          ref={navigationRef}
+          linking={{
+            prefixes: [Linking.createURL("/")],
+            config: {
+              screens: {
+                Home: "",
+                Login: "login",
+                Signup: "signup",
+                Account: {
+                  path: "account",
+                  screens: {
+                    Chat: {
+                      path: "chat",
+                      screens: {
+                        ChatMessages: "/:id",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            async getInitialURL() {
+              // Check if app was opened from a deep link
+              const url = await Linking.getInitialURL();
+
+              if (url != null) {
+                return url;
+              }
+
+              const message = await messaging().getInitialNotification();
+
+              // Get deep link from data
+              // if this is undefined, the app will open the default/home page
+              return message?.data?.link;
+            },
+            subscribe(listener) {
+              const onReceiveURL = ({ url }: { url: string }) => listener(url);
+              // Listen to incoming links from deep linking
+              const subscription = Linking.addEventListener(
+                "url",
+                onReceiveURL
+              );
+
+              // Listen to notification opened from background
+              const unsubNotification = messaging().onNotificationOpenedApp(
+                (message) => {
+                  const url = message?.data?.link;
+                  if (url) {
+                    listener(url);
+                  }
+                }
+              );
+
+              return () => {
+                // Clean up the event listeners
+                subscription.remove();
+                unsubNotification();
+              };
+            },
           }}
         >
-          {token ? (
-            <Stack.Screen
-              name="Account"
-              component={MainScreen}
-              options={{
-                headerShown: false,
-              }}
-            />
-          ) : (
-            <>
-              <Stack.Screen name="Home" component={WelcomeScreen} />
-              <Stack.Screen name="Login" component={LoginScreen} />
-              <Stack.Screen name="Signup" component={SignupScreen} />
-            </>
-          )}
-        </Stack.Navigator>
-      </NavigationContainer>
-      <Toast />
-    </PaperProvider>
+          <Stack.Navigator
+            detachInactiveScreens={true}
+            initialRouteName="Home"
+            screenOptions={{
+              headerShown: false,
+              ...TransitionPresets.SlideFromRightIOS,
+            }}
+          >
+            {token ? (
+              <Stack.Screen
+                name="Account"
+                component={MainScreen}
+                options={{
+                  headerShown: false,
+                }}
+              />
+            ) : (
+              <>
+                <Stack.Screen name="Home" component={WelcomeScreen} />
+                <Stack.Screen name="Login" component={LoginScreen} />
+                <Stack.Screen name="Signup" component={SignupScreen} />
+              </>
+            )}
+          </Stack.Navigator>
+        </NavigationContainer>
+        <Toast />
+        <StatusBar style="dark" />
+      </PaperProvider>
+    </QueryClientProvider>
   );
 }
 

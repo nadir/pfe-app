@@ -11,6 +11,7 @@ import { Icon } from "@rneui/base";
 import { LoginInfo, loginInfoSchema } from "../../validation/loginInfo";
 import * as Haptics from "expo-haptics";
 import Error from "../../components/Error";
+import { API_URL } from "../../config/constants";
 
 export function LoginInformation({ navigation }: any) {
   const { setActiveStep } = useFormStore();
@@ -32,7 +33,7 @@ export function LoginInformation({ navigation }: any) {
   const onSubmit = async (data: LoginInfo) => {
     try {
       const result = await fetch(
-        `http://192.168.100.103:6969/user/check?email=${data.email}&username=${data.username}`,
+        `${API_URL}/user/check?email=${data.email}&username=${data.username}`,
         {
           method: "GET",
         }

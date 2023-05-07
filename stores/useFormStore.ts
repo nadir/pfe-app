@@ -24,6 +24,24 @@ type ChildInformation = {
   class: string;
 };
 
+enum UserType {
+  parent = "parent",
+  teacher = "teacher",
+  admin = "admin",
+}
+
+type loggedInUser = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  username: string;
+  phoneNumber: string;
+  address: string;
+  profilePicture: string;
+  user_type: UserType;
+};
+
 type FormState = {
   activeStep: number;
   setActiveStep: (activeStep: number) => void;
@@ -35,13 +53,28 @@ type FormState = {
   setChildInformation: (childInformation: ChildInformation) => void;
   proofOfEnrollment: string;
   setProofOfEnrollment: (proofOfEnrollment: string) => void;
-  token: string | null;
-  setToken: (token: string | null) => void;
+  token: string;
+  setToken: (token: string) => void;
+  loggedInUser: loggedInUser;
+  setLoggedInUser: (loggedInUser: loggedInUser) => void;
   logout: () => void;
 };
 
 export const useFormStore = create<FormState>((set) => ({
   activeStep: 0,
+  loggedInUser: {
+    id: "",
+    firstName: "",
+    lastName: "",
+    email: "",
+    username: "",
+    phoneNumber: "",
+    address: "",
+    profilePicture: "",
+    user_type: UserType.parent,
+  },
+  setLoggedInUser: (loggedInUser) =>
+    set((state) => ({ ...state, loggedInUser })),
   setActiveStep: (activeStep) => set((state) => ({ ...state, activeStep })),
   personalInformation: {
     firstName: "",
@@ -72,7 +105,7 @@ export const useFormStore = create<FormState>((set) => ({
   setToken: (token) => set((state) => ({ ...state, token })),
   logout: async () => {
     await SecureStore.deleteItemAsync("token");
-    set((state) => ({ ...state, token: null }));
+    set((state) => ({ ...state, token: "" }));
   },
   proofOfEnrollment: "",
   setProofOfEnrollment: (proofOfEnrollment) =>

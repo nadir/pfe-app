@@ -12,6 +12,7 @@ import * as Haptics from "expo-haptics";
 import Error from "../components/Error";
 
 import { useFormStore } from "../stores/useFormStore";
+import { API_URL } from "../config/constants";
 
 const loginSchema = yup.object({
   username: yup.string().required("Username is required"),
@@ -45,10 +46,7 @@ const LoginScreen = ({ navigation }: any) => {
       body: JSON.stringify(data),
     };
     try {
-      const response = await fetch(
-        "http://192.168.100.103:6969/auth/login",
-        options
-      );
+      const response = await fetch(`${API_URL}/auth/login`, options);
       const json = await response.json();
       if (!response.ok) {
         setError(json.message);

@@ -1,5 +1,5 @@
 import { StyleSheet, TouchableOpacity } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import { useFormStore } from "../stores/useFormStore";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Icon } from "@rneui/base";
@@ -15,6 +15,9 @@ import {
 } from "@react-navigation/drawer";
 import ImageIcon from "../components/ImageIcon";
 import Feed from "./Feed";
+import ChatScreen from "./Messages/ChatScreen";
+import ChatNavigator from "./Messages/ChatNavigator";
+import { API_URL } from "../config/constants";
 
 const Tab = createBottomTabNavigator();
 
@@ -58,9 +61,17 @@ const TabNavigation = () => {
       />
       <Tab.Screen
         name="Messages"
-        options={{
+        options={({ navigation }) => ({
+          unmountOnBlur: true,
           tabBarBadge: "+9",
-
+          tabBarButton: (props) => (
+            <TouchableOpacity
+              {...props}
+              onPress={() =>
+                navigation.navigate("Chat", { screen: "RecentChats" })
+              }
+            />
+          ),
           tabBarIcon: ({ focused }) => (
             <ImageIcon
               focused={focused}
@@ -68,7 +79,7 @@ const TabNavigation = () => {
               grayscale={require("../assets/icons/communication-grayscale.png")}
             />
           ),
-        }}
+        })}
         component={Messages}
       />
       <Tab.Screen
@@ -134,6 +145,36 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
 }
 
 const MainScreen = () => {
+  const { token, setLoggedInUser } = useFormStore((state) => ({
+    token: state.token,
+    setLoggedInUser: state.setLoggedInUser,
+  }));
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const response = await fetch(`${API_URL}/user/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setLoggedInUser({
+          id: data.user_id,
+          firstName: data.first_name,
+          email: data.email,
+          user_type: data.user_type,
+          lastName: data.last_name,
+          profilePicture: data.profile_picture,
+          address: data.address,
+          phoneNumber: data.phone_number,
+          username: data.username,
+        });
+      }
+    };
+    fetchUser();
+  }, [token]);
+
   return (
     <Drawer.Navigator
       drawerContent={(props) => <CustomDrawerContent {...props} />}
@@ -145,6 +186,7 @@ const MainScreen = () => {
       <Drawer.Screen name="Feed" component={TabNavigation} />
       <Drawer.Screen name="Add Child" component={TabNavigation} />
       <Drawer.Screen name="Settings" component={TabNavigation} />
+      <Drawer.Screen name="Chat" component={ChatNavigator} />
     </Drawer.Navigator>
   );
 };

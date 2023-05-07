@@ -67,7 +67,7 @@ const Courses = () => {
           <Text>Content here bruh</Text>
         </View>
       </TabbedHeaderPager>
-      <StatusBar style="inverted" />
+      <StatusBar style="light" />
     </>
   );
 };

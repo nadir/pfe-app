@@ -8,6 +8,7 @@ import { format, parse } from "date-fns";
 import * as SecureStorage from "expo-secure-store";
 import { Toast } from "react-native-toast-message/lib/src/Toast";
 import { useState } from "react";
+import { API_URL } from "../../config/constants";
 
 export function UploadProof({ navigation }: any) {
   const [loading, setLoading] = useState(false);
@@ -74,16 +75,13 @@ export function UploadProof({ navigation }: any) {
           } as unknown as Blob);
 
           try {
-            const result = await fetch(
-              "http://192.168.100.103:6969/auth/signup",
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "multipart/form-data",
-                },
-                body: form,
-              }
-            );
+            const result = await fetch(`${API_URL}/auth/signup"`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+              body: form,
+            });
             const json = await result.json();
 
             if (json.success) {

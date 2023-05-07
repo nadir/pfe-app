@@ -1,10 +1,18 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
+import { Button } from "react-native-paper";
 
-const Messages = () => {
+const Messages = ({ navigation }: { navigation: any }) => {
   return (
     <View style={styles.container}>
-      <Text>Messages Component</Text>
+      <Button
+        mode="contained"
+        onPress={() => {
+          navigation.navigate("Chat");
+        }}
+      >
+        Go to random chat
+      </Button>
     </View>
   );
 };

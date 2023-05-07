@@ -5,9 +5,11 @@
   "build": {
     "development": {
       "developmentClient": true,
+      "env": {
+        "FIREBASE": "true"
+      },
       "android": {
-        "buildType": "apk",
-        "gradleCommand": ":app:assembleRelease"
+        "buildType": "apk"
       },
       "distribution": "internal",
       "ios": {

@@ -1,0 +1,29 @@
+diff --git a/node_modules/react-native/Libraries/Lists/VirtualizedList.js b/node_modules/react-native/Libraries/Lists/VirtualizedList.js
+index e948a85..ad7b0a3 100644
+--- a/node_modules/react-native/Libraries/Lists/VirtualizedList.js
++++ b/node_modules/react-native/Libraries/Lists/VirtualizedList.js
+@@ -47,6 +47,7 @@ import {
+ } from './VirtualizeUtils';
+ import invariant from 'invariant';
+ import * as React from 'react';
++import { Platform } from 'react-native';
+ 
+ export type {RenderItemProps, RenderItemType, Separators};
+ 
+@@ -1843,9 +1844,14 @@ export default class VirtualizedList extends StateSafePureComponent<
+ }
+ 
+ const styles = StyleSheet.create({
+-  verticallyInverted: {
++  verticallyInverted: Platform.select({
++    ios: {
+     transform: [{scaleY: -1}],
+-  },
++    },
++    android: {
++      transform: [{ rotate: '180deg' }],
++    },
++  }),
+   horizontallyInverted: {
+     transform: [{scaleX: -1}],
+   },

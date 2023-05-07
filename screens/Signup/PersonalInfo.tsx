@@ -17,6 +17,7 @@ import {
   personalInfoSchema,
 } from "../../validation/personalInfo";
 import DatePickerInputButton from "../../components/DatePickerInputButton";
+import { API_URL } from "../../config/constants";
 
 export function PersonalInfo({ navigation }: any) {
   const { setActiveStep } = useFormStore();
@@ -39,7 +40,7 @@ export function PersonalInfo({ navigation }: any) {
   const onSubmit = async (data: PersonalInformation) => {
     try {
       const result = await fetch(
-        `http://192.168.100.103:6969/user/check?phone_number=${data.phoneNumber}`,
+        `${API_URL}/user/check?phone_number=${data.phoneNumber}`,
         {
           method: "GET",
         }
