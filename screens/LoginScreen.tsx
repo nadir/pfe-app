@@ -13,6 +13,7 @@ import Error from "../components/Error";
 
 import { useFormStore } from "../stores/useFormStore";
 import { API_URL } from "../config/constants";
+import { fetchUser } from "../services/fetchUser";
 
 const loginSchema = yup.object({
   username: yup.string().required("Username is required"),
@@ -24,7 +25,10 @@ const loginSchema = yup.object({
 
 const LoginScreen = ({ navigation }: any) => {
   const [error, setError] = useState<string | null>(null);
-  const { setToken } = useFormStore();
+  const { setToken, setLoggedInUser } = useFormStore((state) => ({
+    setToken: state.setToken,
+    setLoggedInUser: state.setLoggedInUser,
+  }));
 
   const {
     control,
@@ -54,7 +58,21 @@ const LoginScreen = ({ navigation }: any) => {
         return;
       }
       await SecureStore.setItemAsync("token", json.token);
+
       await setToken(json.token);
+
+      const userDetails = await fetchUser(json.token);
+      setLoggedInUser({
+        id: userDetails.user_id,
+        firstName: userDetails.first_name,
+        email: userDetails.email,
+        user_type: userDetails.user_type,
+        lastName: userDetails.last_name,
+        profilePicture: userDetails.profile_picture,
+        address: userDetails.address,
+        phoneNumber: userDetails.phone_number,
+        username: userDetails.username,
+      });
     } catch (error) {
       setError("Something went wrong");
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);

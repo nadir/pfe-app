@@ -60,10 +60,10 @@ export default function Chat({
   route,
 }: StackScreenProps<ChatStackParamList, "ChatMessages">) {
   const { id } = route.params;
-  const user_id = useFormStore((state) => state.loggedInUser.id);
   const [messages, setMessages] = useState<IMessage[]>([]);
 
-  const { token } = useFormStore((state) => ({
+  const { token, id: user_id } = useFormStore((state) => ({
+    id: state.loggedInUser.id,
     token: state.token,
   }));
 
@@ -87,7 +87,6 @@ export default function Chat({
             createdAt: message.created_at,
             user: {
               _id: message.sender_id,
-              avatar: "https://placeimg.com/140/140/any",
             },
           };
         });
@@ -106,7 +105,6 @@ export default function Chat({
           createdAt: message.created_at,
           user: {
             _id: message.sender_id,
-            avatar: "https://placeimg.com/140/140/any",
           },
         };
         setMessages((previousMessages) =>
@@ -135,7 +133,6 @@ export default function Chat({
         createdAt: message.created_at,
         user: {
           _id: message.sender_id,
-          avatar: "https://placeimg.com/140/140/any",
         },
       };
     });
