@@ -145,36 +145,6 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
 }
 
 const MainScreen = () => {
-  const { token, setLoggedInUser } = useFormStore((state) => ({
-    token: state.token,
-    setLoggedInUser: state.setLoggedInUser,
-  }));
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const response = await fetch(`${API_URL}/user/me`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setLoggedInUser({
-          id: data.user_id,
-          firstName: data.first_name,
-          email: data.email,
-          user_type: data.user_type,
-          lastName: data.last_name,
-          profilePicture: data.profile_picture,
-          address: data.address,
-          phoneNumber: data.phone_number,
-          username: data.username,
-        });
-      }
-    };
-    fetchUser();
-  }, [token]);
-
   return (
     <Drawer.Navigator
       drawerContent={(props) => <CustomDrawerContent {...props} />}

@@ -23,7 +23,6 @@ import {
 import {
   NavigationContainer,
   createNavigationContainerRef,
-  useNavigation,
 } from "@react-navigation/native";
 import LoginScreen from "./screens/LoginScreen";
 import { fontConfig } from "./config/fontConfig";
@@ -41,7 +40,9 @@ import messaging from "@react-native-firebase/messaging";
 
 import Constants from "expo-constants";
 import { utils } from "@react-native-firebase/app";
-import { API_URL } from "./config/constants";
+import { fetchUser } from "./services/fetchUser";
+import { requestNotificationPermission } from "./util/requestNotificationPermission";
+import { refreshFCMToken } from "./services/refreshFCMToken";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -53,21 +54,8 @@ export const Icon = createIconSetFromIcoMoon(
   "icons8.ttf"
 );
 
-const { isAvailable } = utils().playServicesAvailability;
-
-// request permission for notifications for firebase
-async function requestUserPermission() {
-  if (Constants.executionEnvironment === "bare") {
-    const authStatus = await messaging().requestPermission();
-    const enabled =
-      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-
-    if (enabled) {
-      console.log("Authorization status:", authStatus);
-    }
-  }
-}
+const { isAvailable: isGooglePlayServiceAvailable } =
+  utils().playServicesAvailability;
 
 const queryClient = new QueryClient();
 
@@ -89,9 +77,10 @@ const navigationRef = createNavigationContainerRef();
 
 export default function App() {
   const [appReady, setAppReady] = useState(false);
-  const { token, setToken } = useFormStore((state) => ({
+  const { token, setToken, setLoggedInUser } = useFormStore((state) => ({
     token: state.token,
     setToken: state.setToken,
+    setLoggedInUser: state.setLoggedInUser,
   }));
 
   useEffect(() => {
@@ -102,7 +91,7 @@ export default function App() {
       try {
         await NavigationBar.setBackgroundColorAsync("#ffffff");
         await NavigationBar.setButtonStyleAsync("dark");
-        await requestUserPermission();
+        await requestNotificationPermission();
         await Font.loadAsync({
           Icons8: require("./assets/icons/icons8.ttf"),
           "SourceSansPro-Black": require("./assets/fonts/Source_Sans_Pro/SourceSansPro-Black.ttf"),
@@ -110,28 +99,38 @@ export default function App() {
           "SourceSansPro-Regular": require("./assets/fonts/Source_Sans_Pro/SourceSansPro-Regular.ttf"),
         });
         const token = await SecureStore.getItemAsync("token");
+
+        // check if token is still valid and populate user data
         if (token) {
-          setToken(token);
+          try {
+            const data = await fetchUser(token);
+            if (data) {
+              setToken(token);
+              setLoggedInUser({
+                id: data.user_id,
+                firstName: data.first_name,
+                email: data.email,
+                user_type: data.user_type,
+                lastName: data.last_name,
+                profilePicture: data.profile_picture,
+                address: data.address,
+                phoneNumber: data.phone_number,
+                username: data.username,
+              });
+            }
+          } catch (e) {
+            await SecureStore.deleteItemAsync("token");
+            setToken("");
+          }
         }
 
         // firebase related stuff
         if (Constants.executionEnvironment === "bare") {
-          if (isAvailable) {
+          if (isGooglePlayServiceAvailable) {
             const fcmToken = await messaging().getToken();
             if (fcmToken && token) {
-              await fetch(`${API_URL}/user/firebase/token`, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                  token: fcmToken,
-                }),
-              });
+              await refreshFCMToken(token, fcmToken);
             }
-
-            // handle notifications opened from background
           } else {
             console.log("play services not available");
           }

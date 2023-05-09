@@ -75,7 +75,7 @@ export function UploadProof({ navigation }: any) {
           } as unknown as Blob);
 
           try {
-            const result = await fetch(`${API_URL}/auth/signup"`, {
+            const result = await fetch(`${API_URL}/auth/signup`, {
               method: "POST",
               headers: {
                 "Content-Type": "multipart/form-data",
@@ -89,6 +89,7 @@ export function UploadProof({ navigation }: any) {
               setToken(json.token);
             }
           } catch (error) {
+            console.log(error);
             Toast.show({
               type: "error",
               text1: "Signup Error",

@@ -48,8 +48,6 @@ const ChatContact = ({
       onPress={() => {
         navigation.navigate("ChatMessages", {
           id: userId,
-          name: fullName,
-          profile_pic: image,
         });
       }}
       rippleColor="#7876ff15"
@@ -58,7 +56,7 @@ const ChatContact = ({
       <View style={styles.contactCard}>
         <Avatar
           rounded
-          source={image ? { uri: image } : undefined}
+          {...(image ? { source: { uri: image } } : {})}
           title={initials}
           containerStyle={styles.avatar}
         />

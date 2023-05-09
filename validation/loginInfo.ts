@@ -10,7 +10,7 @@ export const loginInfoSchema = yup.object().shape({
   password: yup
     .string()
     .required("Password is required")
-    .min(6, "Password must be at least 6 characters")
+    .min(8, "Password must be at least 8 characters")
     .max(20, "Password must be at most 20 characters"),
   confirmPassword: yup
     .string()
