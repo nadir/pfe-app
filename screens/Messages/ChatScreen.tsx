@@ -4,6 +4,7 @@ import {
   Composer,
   GiftedChat,
   InputToolbar,
+  MessageText,
   Send,
 } from "react-native-gifted-chat";
 import { Ionicons } from "@expo/vector-icons";
@@ -16,6 +17,11 @@ import { ChatStackParamList } from "./chat";
 import { API_URL } from "../../config/constants";
 import { useFocusEffect } from "@react-navigation/native";
 import { View } from "react-native";
+import {
+  deleteMessage,
+  fetchMessages,
+  sendMessage,
+} from "../../services/messaging";
 
 export interface IMessage {
   _id: string | number;
@@ -31,29 +37,6 @@ export interface IMessage {
   pending?: boolean;
   quickReplies?: any;
 }
-
-const sendMessage = async (token: string, id: string, message: string) => {
-  const response = await fetch(`${API_URL}/messages/`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ receiver_id: id, content: message }),
-  });
-  const data = await response.json();
-  return data;
-};
-
-const fetchMessages = async (token: string, id: string, page = 0) => {
-  const response = await fetch(`${API_URL}/messages/user/${id}?page=${page}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  const data = await response.json();
-  return data;
-};
 
 export default function Chat({
   navigation,
@@ -144,11 +127,21 @@ export default function Chat({
   }, [page]);
 
   const onSend = useCallback((messages = []) => {
-    //@ts-ignore
+    // @ts-ignore
     sendMessage(token, id, messages[0].text).then((data) => {
       setMessages((previousMessages) =>
         GiftedChat.append(previousMessages, messages)
       );
+    });
+  }, []);
+
+  const onDelete = useCallback((messageId: string | number) => {
+    deleteMessage(token, messageId).then((data) => {
+      if (data) {
+        setMessages((previousMessages) =>
+          previousMessages.filter((message) => message._id !== messageId)
+        );
+      }
     });
   }, []);
 
@@ -173,6 +166,15 @@ export default function Chat({
         onLoadEarlier={onLoadEarlier}
         loadEarlier={shouldLoadEarlier}
         infiniteScroll
+        renderMessageText={(props) => (
+          <MessageText
+            {...props}
+            textStyle={{
+              left: { fontFamily: "SourceSansPro-Regular" },
+              right: { fontFamily: "SourceSansPro-Regular" },
+            }}
+          />
+        )}
         renderBubble={(props) => (
           <Bubble
             {...props}
@@ -211,7 +213,7 @@ export default function Chat({
             }}
           />
         )}
-        minInputToolbarHeight={100}
+        minInputToolbarHeight={70}
         renderComposer={(props) => (
           <Composer
             {...props}
@@ -256,6 +258,21 @@ export default function Chat({
         )}
         user={{
           _id: user_id,
+        }}
+        onLongPress={(context, message) => {
+          message.user._id === user_id &&
+            context.actionSheet().showActionSheetWithOptions(
+              {
+                options: ["Delete", "Cancel"],
+                cancelButtonIndex: 1,
+                destructiveButtonIndex: 0,
+              },
+              (buttonIndex: number) => {
+                if (buttonIndex === 0) {
+                  onDelete(message._id);
+                }
+              }
+            );
         }}
       />
     </View>
