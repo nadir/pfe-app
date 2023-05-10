@@ -1,8 +1,4 @@
-import {
-  Header,
-  TransitionPresets,
-  createStackNavigator,
-} from "@react-navigation/stack";
+import { createStackNavigator } from "@react-navigation/stack";
 import RecentChats from "./RecentChats";
 import Chat from "./ChatScreen";
 import StartChat from "./StartChat";
@@ -13,7 +9,14 @@ const Stack = createStackNavigator<ChatStackParamList>();
 
 const ChatNavigator = () => {
   return (
-    <Stack.Navigator initialRouteName="RecentChats">
+    <Stack.Navigator
+      initialRouteName="RecentChats"
+      screenOptions={{
+        headerTitleStyle: {
+          fontFamily: "SourceSansPro-SemiBold",
+        },
+      }}
+    >
       <Stack.Screen
         name="RecentChats"
         options={({ navigation }) => ({
@@ -30,7 +33,13 @@ const ChatNavigator = () => {
         })}
         component={RecentChats}
       />
-      <Stack.Screen name="ChatMessages" component={Chat} />
+      <Stack.Screen
+        name="ChatMessages"
+        component={Chat}
+        options={({ route }) => ({
+          title: route.params.name || "Chat",
+        })}
+      />
       <Stack.Screen name="StartChat" component={StartChat} />
     </Stack.Navigator>
   );

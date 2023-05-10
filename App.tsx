@@ -97,6 +97,7 @@ export default function App() {
           "SourceSansPro-Black": require("./assets/fonts/Source_Sans_Pro/SourceSansPro-Black.ttf"),
           "SourceSansPro-Bold": require("./assets/fonts/Source_Sans_Pro/SourceSansPro-Bold.ttf"),
           "SourceSansPro-Regular": require("./assets/fonts/Source_Sans_Pro/SourceSansPro-Regular.ttf"),
+          "SourceSansPro-SemiBold": require("./assets/fonts/Source_Sans_Pro/SourceSansPro-SemiBold.ttf"),
         });
         const token = await SecureStore.getItemAsync("token");
 
@@ -190,6 +191,7 @@ export default function App() {
                   path: "account",
                   screens: {
                     Chat: {
+                      initialRouteName: "RecentChats",
                       path: "chat",
                       screens: {
                         ChatMessages: "/:id",

@@ -48,6 +48,7 @@ const ChatContact = ({
       onPress={() => {
         navigation.navigate("ChatMessages", {
           id: userId,
+          name: fullName,
         });
       }}
       rippleColor="#7876ff15"
