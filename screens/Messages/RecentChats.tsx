@@ -1,13 +1,10 @@
 import { formatDistanceToNow } from "date-fns";
 import { FlatList, StyleSheet, Text, View } from "react-native";
-import { ActivityIndicator, FAB, TouchableRipple } from "react-native-paper";
+import { ActivityIndicator, TouchableRipple } from "react-native-paper";
 import { formatDistance } from "../../util/getRelativeTime";
-import { Image } from "expo-image";
 import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack";
 import { ChatStackParamList } from "./chat";
 import { AntDesign } from "@expo/vector-icons";
-import { useQuery } from "react-query";
-import { API_URL } from "../../config/constants";
 import { useFormStore } from "../../stores/useFormStore";
 import { useRecentChats } from "./useRecentChats";
 import { useRefreshOnFocus } from "../../hooks/useRefreshOnFocus";

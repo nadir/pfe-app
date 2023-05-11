@@ -84,9 +84,6 @@ export default function App() {
   }));
 
   useEffect(() => {
-    if (Constants.executionEnvironment === "bare") {
-    }
-
     async function prepare() {
       try {
         await NavigationBar.setBackgroundColorAsync("#ffffff");
@@ -118,22 +115,11 @@ export default function App() {
                 phoneNumber: data.phone_number,
                 username: data.username,
               });
+              await refreshFCMToken(token);
             }
           } catch (e) {
             await SecureStore.deleteItemAsync("token");
             setToken("");
-          }
-        }
-
-        // firebase related stuff
-        if (Constants.executionEnvironment === "bare") {
-          if (isGooglePlayServiceAvailable) {
-            const fcmToken = await messaging().getToken();
-            if (fcmToken && token) {
-              await refreshFCMToken(token, fcmToken);
-            }
-          } else {
-            console.log("play services not available");
           }
         }
       } catch (e) {

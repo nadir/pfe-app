@@ -14,6 +14,7 @@ import Error from "../components/Error";
 import { useFormStore } from "../stores/useFormStore";
 import { API_URL } from "../config/constants";
 import { fetchUser } from "../services/fetchUser";
+import { refreshFCMToken } from "../services/refreshFCMToken";
 
 const loginSchema = yup.object({
   username: yup.string().required("Username is required"),
@@ -73,6 +74,7 @@ const LoginScreen = ({ navigation }: any) => {
         phoneNumber: userDetails.phone_number,
         username: userDetails.username,
       });
+      await refreshFCMToken(json.token);
     } catch (error) {
       setError("Something went wrong");
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);

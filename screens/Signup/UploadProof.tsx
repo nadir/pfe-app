@@ -9,6 +9,7 @@ import * as SecureStorage from "expo-secure-store";
 import { Toast } from "react-native-toast-message/lib/src/Toast";
 import { useState } from "react";
 import { API_URL } from "../../config/constants";
+import { refreshFCMToken } from "../../services/refreshFCMToken";
 
 export function UploadProof({ navigation }: any) {
   const [loading, setLoading] = useState(false);
@@ -17,6 +18,7 @@ export function UploadProof({ navigation }: any) {
     childInformation,
     loginInformation,
     proofOfEnrollment,
+    setLoggedInUser,
     setToken,
   } = useFormStore();
   return (
@@ -87,6 +89,22 @@ export function UploadProof({ navigation }: any) {
             if (json.success) {
               await SecureStorage.setItemAsync("token", json.token);
               setToken(json.token);
+              setLoggedInUser({
+                id: json.user_id,
+                firstName: personalInformation.firstName,
+                lastName: personalInformation.lastName,
+                // @ts-ignore
+
+                user_type: "parent",
+                phoneNumber: personalInformation.phoneNumber,
+                username: loginInformation.username,
+                profilePicture: "",
+                email: loginInformation.email,
+                // @ts-ignore
+
+                address: personalInformation.address,
+              });
+              await refreshFCMToken(json.token);
             }
           } catch (error) {
             console.log(error);

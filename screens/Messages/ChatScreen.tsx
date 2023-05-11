@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useContext } from "react";
 import {
   Bubble,
   Composer,
@@ -22,6 +22,7 @@ import {
   fetchMessages,
   sendMessage,
 } from "../../services/messaging";
+import SocketContext from "../../util/SocketContext";
 
 export interface IMessage {
   _id: string | number;
@@ -49,12 +50,9 @@ export default function Chat({
     id: state.loggedInUser.id,
     token: state.token,
   }));
-
   const [page, setPage] = useState(0);
   const [loadingEarlier, setLoadingEarlier] = useState(false);
   const [shouldLoadEarlier, setShouldLoadEarlier] = useState(true);
-
-  const socket = socketio(token);
 
   useFocusEffect(
     useCallback(() => {
@@ -79,7 +77,11 @@ export default function Chat({
     }, [id])
   );
 
+  const socket = useContext(SocketContext);
+
   useEffect(() => {
+    if (!socket) return;
+
     socket.on("message", (message: any) => {
       if (message.sender_id === id) {
         const append: IMessage = {
