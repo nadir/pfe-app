@@ -88,7 +88,12 @@ const StartChat = ({ navigation }: StartChatProps) => {
   useRefreshOnFocus(refetch);
 
   return (
-    <SafeAreaView>
+    <SafeAreaView
+      style={{
+        backgroundColor: "#fff",
+        flex: 1,
+      }}
+    >
       <View
         style={{
           flexDirection: "row",
@@ -106,7 +111,8 @@ const StartChat = ({ navigation }: StartChatProps) => {
             flex: 1,
             elevation: 20,
             borderWidth: 1,
-            borderColor: "#d5d4e3",
+            borderColor: "#e5e4f5",
+            backgroundColor: "#f1f0ff",
           }}
           value={search}
         />

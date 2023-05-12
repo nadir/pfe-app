@@ -14,7 +14,6 @@ import {
 import * as Font from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import * as SecureStore from "expo-secure-store";
-import * as NavigationBar from "expo-navigation-bar";
 import * as Linking from "expo-linking";
 import {
   TransitionPresets,
@@ -38,11 +37,11 @@ import NetInfo from "@react-native-community/netinfo";
 
 import messaging from "@react-native-firebase/messaging";
 
-import Constants from "expo-constants";
 import { utils } from "@react-native-firebase/app";
 import { fetchUser } from "./services/fetchUser";
 import { requestNotificationPermission } from "./util/requestNotificationPermission";
 import { refreshFCMToken } from "./services/refreshFCMToken";
+import { cacheImages } from "./util/cacheImages";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -86,8 +85,6 @@ export default function App() {
   useEffect(() => {
     async function prepare() {
       try {
-        await NavigationBar.setBackgroundColorAsync("#ffffff");
-        await NavigationBar.setButtonStyleAsync("dark");
         await requestNotificationPermission();
         await Font.loadAsync({
           Icons8: require("./assets/icons/icons8.ttf"),
@@ -96,6 +93,19 @@ export default function App() {
           "SourceSansPro-Regular": require("./assets/fonts/Source_Sans_Pro/SourceSansPro-Regular.ttf"),
           "SourceSansPro-SemiBold": require("./assets/fonts/Source_Sans_Pro/SourceSansPro-SemiBold.ttf"),
         });
+
+        const imageAssets = cacheImages([
+          require("./assets/icons/books-grayscale.png"),
+          require("./assets/icons/calendar-grayscale.png"),
+          require("./assets/icons/communication-grayscale.png"),
+          require("./assets/icons/newspaper-grayscale.png"),
+          require("./assets/icons/icons8-books-96.png"),
+          require("./assets/icons/icons8-calendar-96.png"),
+          require("./assets/icons/icons8-communication-96.png"),
+          require("./assets/icons/icons8-newspaper-96.png"),
+        ]);
+
+        await Promise.all([...imageAssets]);
         const token = await SecureStore.getItemAsync("token");
 
         // check if token is still valid and populate user data

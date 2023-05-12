@@ -9,6 +9,7 @@
         "FIREBASE": "true"
       },
       "android": {
+        "image": "latest",
         "buildType": "apk"
       },
       "distribution": "internal",
@@ -17,6 +18,9 @@
       }
     },
     "preview": {
+      "env": {
+        "FIREBASE": "true"
+      },
       "distribution": "internal",
       "android": {
         "buildType": "apk",

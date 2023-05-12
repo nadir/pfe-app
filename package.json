@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.0.1",
+    "@notifee/react-native": "^7.7.1",
     "@react-native-community/datetimepicker": "6.7.3",
     "@react-native-community/netinfo": "9.3.7",
     "@react-native-firebase/app": "^17.4.3",
@@ -24,6 +25,7 @@
     "@rneui/themed": "^4.0.0-rc.7",
     "date-fns": "^2.29.3",
     "expo": "~48.0.10",
+    "expo-asset": "~8.9.1",
     "expo-constants": "~14.2.1",
     "expo-dev-client": "~2.2.1",
     "expo-font": "~11.1.1",

@@ -17,6 +17,10 @@
       "supportsTablet": true,
       "googleServicesFile": "./GoogleService-Info.plist"
     },
+    "androidNavigationBar": {
+      "barStyle": "dark-content",
+      "backgroundColor": "#ffffff"
+    },
     "android": {
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
