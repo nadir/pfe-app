@@ -42,6 +42,7 @@ import { fetchUser } from "./services/fetchUser";
 import { requestNotificationPermission } from "./util/requestNotificationPermission";
 import { refreshFCMToken } from "./services/refreshFCMToken";
 import { cacheImages } from "./util/cacheImages";
+import { queryClient } from "./util/queryClient";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -55,8 +56,6 @@ export const Icon = createIconSetFromIcoMoon(
 
 const { isAvailable: isGooglePlayServiceAvailable } =
   utils().playServicesAvailability;
-
-const queryClient = new QueryClient();
 
 // refetch data on app focus
 function onAppStateChange(status: AppStateStatus) {
