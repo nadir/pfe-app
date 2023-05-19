@@ -7,8 +7,10 @@ import { FlashList } from "@shopify/flash-list";
 import { useInfiniteQuery } from "react-query";
 import { API_URL } from "../config/constants";
 import { useFormStore } from "../stores/useFormStore";
-import { ActivityIndicator } from "react-native-paper";
+import { ActivityIndicator, IconButton, Searchbar } from "react-native-paper";
 import { queryClient } from "../util/queryClient";
+import { useState } from "react";
+import { AntDesign } from "@expo/vector-icons";
 
 const useInfiniteFeed = (token: string) => {
   return useInfiniteQuery(
@@ -65,6 +67,7 @@ const Feed = () => {
         onRefresh={() => {
           queryClient.invalidateQueries({
             queryKey: ["feed"],
+            refetchActive: true,
           });
         }}
         refreshing={isLoading}
@@ -78,6 +81,31 @@ const Feed = () => {
           }
         }}
         onEndReachedThreshold={0.8}
+        ListHeaderComponent={() => {
+          const [searchQuery, setSearchQuery] = useState("");
+          // search bar
+          return (
+            <Searchbar
+              style={{ marginVertical: 15 }}
+              placeholder="Search"
+              onChangeText={(text) => {
+                setSearchQuery(text);
+              }}
+              value={searchQuery}
+              mode="bar"
+              right={(props) => (
+                // return arrow icon if search query is not empty
+                <IconButton
+                  {...props}
+                  icon={searchQuery ? "arrow-right" : "close"}
+                  onPress={() => {
+                    console.log("search query", searchQuery);
+                  }}
+                />
+              )}
+            />
+          );
+        }}
         ListFooterComponent={() =>
           isFetchingNextPage ? (
             <ActivityIndicator style={{ marginTop: 20 }} animating={true} />

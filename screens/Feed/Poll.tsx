@@ -128,7 +128,7 @@ export const Poll: FC<PollProps & { id: number; token: string }> = ({
             setLoading(false);
           }}
           icon={votedOptionId ? "check" : "vote"}
-          disabled={votedOptionId ? true : false}
+          disabled={votedOptionId || !checked ? true : false}
           mode="contained"
           buttonColor="#9e9cff"
         >
