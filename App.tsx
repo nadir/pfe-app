@@ -29,6 +29,8 @@ import SignupScreen from "./screens/Signup/SignupScreen";
 import { useFormStore } from "./stores/useFormStore";
 import WelcomeScreen from "./screens/WelcomeScreen";
 
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+
 import { createIconSetFromIcoMoon } from "@expo/vector-icons";
 import MainScreen from "./screens/MainScreen";
 import Toast from "react-native-toast-message";
@@ -43,6 +45,8 @@ import { requestNotificationPermission } from "./util/requestNotificationPermiss
 import { refreshFCMToken } from "./services/refreshFCMToken";
 import { cacheImages } from "./util/cacheImages";
 import { queryClient } from "./util/queryClient";
+import { fetchStudents } from "./services/fetchStudents";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -75,11 +79,14 @@ const navigationRef = createNavigationContainerRef();
 
 export default function App() {
   const [appReady, setAppReady] = useState(false);
-  const { token, setToken, setLoggedInUser } = useFormStore((state) => ({
-    token: state.token,
-    setToken: state.setToken,
-    setLoggedInUser: state.setLoggedInUser,
-  }));
+  const { token, setToken, setLoggedInUser, setChildren, setActiveChild } =
+    useFormStore((state) => ({
+      token: state.token,
+      setToken: state.setToken,
+      setLoggedInUser: state.setLoggedInUser,
+      setChildren: state.setChildren,
+      setActiveChild: state.setActiveChild,
+    }));
 
   useEffect(() => {
     async function prepare() {
@@ -124,6 +131,11 @@ export default function App() {
                 phoneNumber: data.phone_number,
                 username: data.username,
               });
+              if (data.user_type === "parent") {
+                const childrenDetails = await fetchStudents(token);
+                setChildren(childrenDetails);
+                setActiveChild(0);
+              }
               await refreshFCMToken(token);
             }
           } catch (e) {
@@ -172,97 +184,102 @@ export default function App() {
           },
         }}
       >
-        <NavigationContainer
-          onReady={onLayoutRootView}
-          ref={navigationRef}
-          linking={{
-            prefixes: [Linking.createURL("/")],
-            config: {
-              screens: {
-                Home: "",
-                Login: "login",
-                Signup: "signup",
-                Account: {
-                  path: "account",
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <BottomSheetModalProvider>
+            <NavigationContainer
+              onReady={onLayoutRootView}
+              ref={navigationRef}
+              linking={{
+                prefixes: [Linking.createURL("/")],
+                config: {
                   screens: {
-                    Chat: {
-                      initialRouteName: "RecentChats",
-                      path: "chat",
+                    Home: "",
+                    Login: "login",
+                    Signup: "signup",
+                    Account: {
+                      path: "account",
                       screens: {
-                        ChatMessages: "/:id",
+                        Chat: {
+                          initialRouteName: "RecentChats",
+                          path: "chat",
+                          screens: {
+                            ChatMessages: "/:id",
+                          },
+                        },
                       },
                     },
                   },
                 },
-              },
-            },
-            async getInitialURL() {
-              // Check if app was opened from a deep link
-              const url = await Linking.getInitialURL();
+                async getInitialURL() {
+                  // Check if app was opened from a deep link
+                  const url = await Linking.getInitialURL();
 
-              if (url != null) {
-                return url;
-              }
-
-              const message = await messaging().getInitialNotification();
-
-              // Get deep link from data
-              // if this is undefined, the app will open the default/home page
-              return message?.data?.link;
-            },
-            subscribe(listener) {
-              const onReceiveURL = ({ url }: { url: string }) => listener(url);
-              // Listen to incoming links from deep linking
-              const subscription = Linking.addEventListener(
-                "url",
-                onReceiveURL
-              );
-
-              // Listen to notification opened from background
-              const unsubNotification = messaging().onNotificationOpenedApp(
-                (message) => {
-                  const url = message?.data?.link;
-                  if (url) {
-                    listener(url);
+                  if (url != null) {
+                    return url;
                   }
-                }
-              );
 
-              return () => {
-                // Clean up the event listeners
-                subscription.remove();
-                unsubNotification();
-              };
-            },
-          }}
-        >
-          <Stack.Navigator
-            detachInactiveScreens={true}
-            initialRouteName="Home"
-            screenOptions={{
-              headerShown: false,
-              ...TransitionPresets.SlideFromRightIOS,
-            }}
-          >
-            {token ? (
-              <Stack.Screen
-                name="Account"
-                component={MainScreen}
-                options={{
+                  const message = await messaging().getInitialNotification();
+
+                  // Get deep link from data
+                  // if this is undefined, the app will open the default/home page
+                  return message?.data?.link;
+                },
+                subscribe(listener) {
+                  const onReceiveURL = ({ url }: { url: string }) =>
+                    listener(url);
+                  // Listen to incoming links from deep linking
+                  const subscription = Linking.addEventListener(
+                    "url",
+                    onReceiveURL
+                  );
+
+                  // Listen to notification opened from background
+                  const unsubNotification = messaging().onNotificationOpenedApp(
+                    (message) => {
+                      const url = message?.data?.link;
+                      if (url) {
+                        listener(url);
+                      }
+                    }
+                  );
+
+                  return () => {
+                    // Clean up the event listeners
+                    subscription.remove();
+                    unsubNotification();
+                  };
+                },
+              }}
+            >
+              <Stack.Navigator
+                detachInactiveScreens={true}
+                initialRouteName="Home"
+                screenOptions={{
                   headerShown: false,
+                  ...TransitionPresets.SlideFromRightIOS,
                 }}
-              />
-            ) : (
-              <>
-                <Stack.Screen name="Home" component={WelcomeScreen} />
-                <Stack.Screen name="Login" component={LoginScreen} />
-                <Stack.Screen name="Signup" component={SignupScreen} />
-              </>
-            )}
-          </Stack.Navigator>
-        </NavigationContainer>
-        <Toast />
-        <StatusBar style="dark" />
+              >
+                {token ? (
+                  <Stack.Screen
+                    name="Account"
+                    component={MainScreen}
+                    options={{
+                      headerShown: false,
+                    }}
+                  />
+                ) : (
+                  <>
+                    <Stack.Screen name="Home" component={WelcomeScreen} />
+                    <Stack.Screen name="Login" component={LoginScreen} />
+                    <Stack.Screen name="Signup" component={SignupScreen} />
+                  </>
+                )}
+              </Stack.Navigator>
+            </NavigationContainer>
+            <Toast />
+            <StatusBar style="dark" />
+          </BottomSheetModalProvider>
+        </GestureHandlerRootView>
       </PaperProvider>
     </QueryClientProvider>
   );

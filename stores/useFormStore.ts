@@ -1,6 +1,9 @@
 import { create } from "zustand";
 import * as SecureStore from "expo-secure-store";
 import { ImagePickerAsset } from "expo-image-picker";
+import { RefObject } from "react";
+import BottomSheet from "@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
 
 type PersonalInformation = {
   firstName: string;
@@ -24,6 +27,15 @@ type ChildInformation = {
   class: string;
 };
 
+type Student = {
+  id: string;
+  first_name: string;
+  last_name: string;
+  date_of_birth: string;
+  class_id: string;
+  verified: boolean;
+};
+
 enum UserType {
   parent = "parent",
   teacher = "teacher",
@@ -44,6 +56,10 @@ type loggedInUser = {
 
 type FormState = {
   activeStep: number;
+  children: Student[];
+  activeChild: number | null;
+  setActiveChild: (activeChild: number | null) => void;
+  setChildren: (children: Student[]) => void;
   setActiveStep: (activeStep: number) => void;
   personalInformation: PersonalInformation;
   setPersonalInformation: (personalInformation: PersonalInformation) => void;
@@ -58,6 +74,8 @@ type FormState = {
   loggedInUser: loggedInUser;
   setLoggedInUser: (loggedInUser: loggedInUser) => void;
   logout: () => void;
+  bottomSheetRef: RefObject<BottomSheetModal>;
+  setBottomSheetRef: (bottomSheetRef: RefObject<BottomSheetModal>) => void;
 };
 
 export const useFormStore = create<FormState>((set) => ({
@@ -110,4 +128,11 @@ export const useFormStore = create<FormState>((set) => ({
   proofOfEnrollment: "",
   setProofOfEnrollment: (proofOfEnrollment) =>
     set((state) => ({ ...state, proofOfEnrollment })),
+  children: [],
+  setChildren: (children) => set((state) => ({ ...state, children })),
+  activeChild: null,
+  setActiveChild: (activeChild) => set((state) => ({ ...state, activeChild })),
+  bottomSheetRef: { current: null },
+  setBottomSheetRef: (bottomSheetRef) =>
+    set((state) => ({ ...state, bottomSheetRef })),
 }));

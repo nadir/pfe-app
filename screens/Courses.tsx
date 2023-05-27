@@ -5,6 +5,7 @@ import { useNavigation } from "@react-navigation/native";
 import { AntDesign } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useFormStore } from "../stores/useFormStore";
 
 const Courses = () => {
   const navigation = useNavigation();
@@ -64,7 +65,7 @@ const Courses = () => {
         }}
       >
         <View style={{ height: 1000, backgroundColor: "white" }}>
-          <Text>Content here bruh</Text>
+          <Text>Content here homie</Text>
         </View>
       </TabbedHeaderPager>
       <StatusBar style="light" />

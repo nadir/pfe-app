@@ -15,6 +15,8 @@ import { useFormStore } from "../stores/useFormStore";
 import { API_URL } from "../config/constants";
 import { fetchUser } from "../services/fetchUser";
 import { refreshFCMToken } from "../services/refreshFCMToken";
+import { fetchStudents } from "../services/fetchStudents";
+import { set } from "lodash";
 
 const loginSchema = yup.object({
   username: yup.string().required("Username is required"),
@@ -26,10 +28,13 @@ const loginSchema = yup.object({
 
 const LoginScreen = ({ navigation }: any) => {
   const [error, setError] = useState<string | null>(null);
-  const { setToken, setLoggedInUser } = useFormStore((state) => ({
-    setToken: state.setToken,
-    setLoggedInUser: state.setLoggedInUser,
-  }));
+  const { setToken, setLoggedInUser, setChildren, setActiveChild } =
+    useFormStore((state) => ({
+      setToken: state.setToken,
+      setLoggedInUser: state.setLoggedInUser,
+      setChildren: state.setChildren,
+      setActiveChild: state.setActiveChild,
+    }));
 
   const {
     control,
@@ -74,6 +79,11 @@ const LoginScreen = ({ navigation }: any) => {
         phoneNumber: userDetails.phone_number,
         username: userDetails.username,
       });
+      if (userDetails.user_type === "parent") {
+        const childrenDetails = await fetchStudents(json.token);
+        setChildren(childrenDetails);
+        setActiveChild(0);
+      }
       await refreshFCMToken(json.token);
     } catch (error) {
       setError("Something went wrong");
