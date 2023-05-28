@@ -9,8 +9,10 @@ import { API_URL } from "../config/constants";
 import { useFormStore } from "../stores/useFormStore";
 import { ActivityIndicator, IconButton, Searchbar } from "react-native-paper";
 import { queryClient } from "../util/queryClient";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { AntDesign } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
+import * as StatusBar from "expo-status-bar";
 
 const useInfiniteFeed = (token: string) => {
   return useInfiniteQuery(
@@ -18,7 +20,7 @@ const useInfiniteFeed = (token: string) => {
     async ({ pageParam = "" }) => {
       try {
         const response = await fetch(
-          `http://192.168.100.103:6969/posts?nextCursor=${pageParam}`,
+          `${API_URL}/posts?nextCursor=${pageParam}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -53,6 +55,14 @@ const Feed = () => {
     refetch,
   } = useInfiniteFeed(token);
 
+  useFocusEffect(
+    useCallback(() => {
+      StatusBar.setStatusBarStyle("dark");
+      StatusBar.setStatusBarBackgroundColor("#F6F6F6", true);
+      StatusBar.setStatusBarTranslucent(true);
+    }, [])
+  );
+
   return (
     <SafeAreaView
       style={{
@@ -86,7 +96,14 @@ const Feed = () => {
           // search bar
           return (
             <Searchbar
-              style={{ marginVertical: 15 }}
+              style={{
+                marginVertical: 15,
+                borderRadius: 10,
+                padding: 0,
+                backgroundColor: "#fff",
+                borderColor: "#e8e8e8",
+                borderWidth: 1,
+              }}
               placeholder="Search"
               onChangeText={(text) => {
                 setSearchQuery(text);

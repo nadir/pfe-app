@@ -1,3 +1,5 @@
+import { API_URL } from "../../config/constants";
+
 export interface Note {
   id: number;
   name: string;
@@ -14,25 +16,22 @@ export const publishNotes = async (
   module_id: number
 ) => {
   try {
-    let resposne = await fetch(
-      `http://192.168.100.103:6969/notes/${module_id}/${class_id}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          notes: notes,
-        }),
-      }
-    );
+    let resposne = await fetch(`${API_URL}/notes/${module_id}/${class_id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        notes: notes,
+      }),
+    });
 
     if (!resposne.ok) {
       throw new Error("Error publishing notes");
     }
     return true;
   } catch (error) {
-    throw new Error("Request error");
+    throw new Error("Error publishing notes");
   }
 };

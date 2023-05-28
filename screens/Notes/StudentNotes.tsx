@@ -191,7 +191,7 @@ const StudentNotes = () => {
           refreshing={isRefetching}
           onRefresh={refetch}
           data={data?.notes || []}
-          ListFooterComponent={renderFooter}
+          ListFooterComponent={isLoading ? null : renderFooter}
           renderItem={renderItem}
           keyExtractor={(item) => item.module_name}
         />

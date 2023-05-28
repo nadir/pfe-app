@@ -109,6 +109,8 @@ export default function App() {
           require("./assets/icons/icons8-calendar-96.png"),
           require("./assets/icons/icons8-communication-96.png"),
           require("./assets/icons/icons8-newspaper-96.png"),
+          require("./assets/icons/icons8-class-96.png"),
+          require("./assets/icons/icons8-class-96-grayscale.png"),
         ]);
 
         await Promise.all([...imageAssets]);

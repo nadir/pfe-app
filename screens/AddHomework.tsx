@@ -20,6 +20,7 @@ import DatePickerInputButton from "../components/DatePickerInputButton";
 import { format } from "date-fns";
 import Toast from "react-native-toast-message";
 import { useModules } from "../services/useModules";
+import { API_URL } from "../config/constants";
 
 const AddHomework = () => {
   const token = useFormStore((state) => state.token);
@@ -353,17 +354,14 @@ const AddHomework = () => {
               type: file.mimeType,
             } as unknown as Blob);
             try {
-              const response = await fetch(
-                "http://192.168.100.103:6969/homework",
-                {
-                  method: "POST",
-                  body: form,
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "multipart/form-data",
-                  },
-                }
-              );
+              const response = await fetch(`${API_URL}/homework`, {
+                method: "POST",
+                body: form,
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "multipart/form-data",
+                },
+              });
               const data = await response.json();
 
               if (!response.ok) {

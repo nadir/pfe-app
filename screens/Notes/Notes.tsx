@@ -1,9 +1,8 @@
 import { Picker } from "@react-native-picker/picker";
 import { Input } from "@rneui/base";
 import { StatusBar } from "expo-status-bar";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AppState, FlatList, StyleSheet, Text, View } from "react-native";
-import { ScrollView } from "react-native-gesture-handler";
 import { Button, Searchbar } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -11,10 +10,8 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useModules } from "../../services/useModules";
 import { useFormStore } from "../../stores/useFormStore";
 import { useNotes } from "./useNotes";
-import { debounce, set } from "lodash";
 import { Note, publishNotes } from "./publishNotes";
 import Toast from "react-native-toast-message";
-import { not } from "react-native-reanimated";
 import { mergeNotes } from "./mergeNotes";
 import { useRefreshOnFocus } from "../../hooks/useRefreshOnFocus";
 
@@ -98,6 +95,14 @@ const Notes = ({ navigation }: { navigation: any }) => {
   );
 
   const modules = data?.filter((module) => module.class_id === selectedClass);
+
+  console.log(selectedClass, selectedModule);
+
+  useEffect(() => {
+    if (modules?.length === 1) {
+      setSelectedModule(modules[0].id);
+    }
+  }, [modules]);
 
   const classes = data?.map((module) => {
     return {
@@ -317,6 +322,7 @@ const Notes = ({ navigation }: { navigation: any }) => {
               setSelectedModule(itemValue)
             }
           >
+            <Picker.Item label={"Select module"} enabled={false} value={""} />
             {modules?.map((item) => {
               return (
                 <Picker.Item
@@ -388,6 +394,27 @@ const Notes = ({ navigation }: { navigation: any }) => {
         }}
       />
       <FlatList
+        ListEmptyComponent={() => {
+          return (
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+                marginTop: 20,
+              }}
+            >
+              <Text
+                style={{
+                  fontFamily: "SourceSansPro-SemiBold",
+                  fontSize: 16,
+                }}
+              >
+                {!selectedModule ? "Select a module" : "No notes found"}
+              </Text>
+            </View>
+          );
+        }}
         ListHeaderComponent={ListHeaderComponent}
         data={
           filteredNotes.length > 0 ? filteredNotes : !searchQuery ? notes : null

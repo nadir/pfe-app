@@ -8,6 +8,7 @@ import { queryClient } from "../../util/queryClient";
 import { produce } from "immer";
 import { useFormStore } from "../../stores/useFormStore";
 import { formatDistanceToNow } from "date-fns";
+import { API_URL } from "../../config/constants";
 
 export const FeedItem: FC<FeedItemProps> = ({
   id,
@@ -97,7 +98,7 @@ export const FeedItem: FC<FeedItemProps> = ({
           onPress={async () => {
             setLiked(!liked);
 
-            await fetch(`http://192.168.100.103:6969/posts/${id}/like`, {
+            await fetch(`${API_URL}/posts/${id}/like`, {
               method: "POST",
               headers: {
                 Authorization: `Bearer ${token}}`,

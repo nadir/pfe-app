@@ -5,16 +5,25 @@ import StartChat from "./StartChat";
 import { ChatStackParamList } from "./chat";
 import { IconButton } from "react-native-paper";
 import { useFormStore } from "../../stores/useFormStore";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import socketio from "../../services/socket";
 import { Socket } from "socket.io-client";
 import SocketContext from "../../util/SocketContext";
+import { useFocusEffect } from "@react-navigation/native";
+import * as StatusBar from "expo-status-bar";
 
 const Stack = createStackNavigator<ChatStackParamList>();
 
 const ChatNavigator = () => {
   const token = useFormStore((state) => state.token);
   const [socketConnection, setSocket] = useState<Socket | null>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      StatusBar.setStatusBarStyle("dark");
+      StatusBar.setStatusBarBackgroundColor("white", true);
+    }, [])
+  );
 
   useEffect(() => {
     const socket = socketio(token);

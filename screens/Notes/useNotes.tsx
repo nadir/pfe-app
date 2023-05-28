@@ -1,4 +1,5 @@
 import { useQuery } from "react-query";
+import { API_URL } from "../../config/constants";
 
 export const useNotes = (
   token: string,
@@ -9,16 +10,13 @@ export const useNotes = (
     ["notes", classId, moduleId],
     async () => {
       try {
-        let response = await fetch(
-          `http://192.168.100.103:6969/notes/${moduleId}/${classId}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        let response = await fetch(`${API_URL}/notes/${moduleId}/${classId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         if (!response.ok) {
           throw new Error("Error fetching notes");

@@ -1,4 +1,5 @@
 import { useQuery } from "react-query";
+import { API_URL } from "../config/constants";
 
 export type Module = {
   id: number;
@@ -14,7 +15,7 @@ export type Module = {
 export const useModules = (token: string) => {
   return useQuery<Module[]>("modules", async () => {
     try {
-      const response = await fetch("http://192.168.100.103:6969/modules", {
+      const response = await fetch(`${API_URL}/modules`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -28,7 +29,7 @@ export const useModules = (token: string) => {
 
       return data.results;
     } catch (error) {
-      throw new Error("Request error");
+      throw new Error("Error getting teacher modules");
     }
   });
 };

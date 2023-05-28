@@ -4,6 +4,7 @@ import { Checkbox, Button } from "react-native-paper";
 import { queryClient } from "../../util/queryClient";
 import { produce } from "immer";
 import { set } from "lodash";
+import { API_URL } from "../../config/constants";
 
 export const Poll: FC<PollProps & { id: number; token: string }> = ({
   id,
@@ -97,7 +98,7 @@ export const Poll: FC<PollProps & { id: number; token: string }> = ({
           onPress={async () => {
             setVotedOption(checked);
             setLoading(true);
-            await fetch(`http://192.168.100.103:6969/posts/poll/${id}/vote`, {
+            await fetch(`${API_URL}/posts/poll/${id}/vote`, {
               method: "POST",
               headers: {
                 Authorization: `Bearer ${token}`,

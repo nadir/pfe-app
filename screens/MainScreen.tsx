@@ -190,7 +190,6 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
   return (
     <DrawerContentScrollView {...props}>
       <DrawerItemList {...props} />
-      <DrawerItem label="Logout" onPress={logout} />
       <DrawerItem
         label="Children"
         onPress={() => {
@@ -198,12 +197,15 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
           bottomSheetRef.current?.present();
         }}
       />
+      <DrawerItem label="Logout" onPress={logout} />
     </DrawerContentScrollView>
   );
 }
 
 const MainScreen = () => {
   const setBottomSheetRef = useFormStore((state) => state.setBottomSheetRef);
+  const user_type = useFormStore((state) => state.loggedInUser.user_type);
+
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   // variables
   const snapPoints = useMemo(() => ["25%", "50%"], []);
@@ -251,8 +253,11 @@ const MainScreen = () => {
         }}
       >
         <Drawer.Screen name="Feed" component={TabNavigation} />
-        <Drawer.Screen name="Notes" component={Notes} />
-        <Drawer.Screen name="StudentNotes" component={StudentNotes} />
+        <Drawer.Screen
+          name="Notes"
+          component={user_type === "teacher" ? Notes : StudentNotes}
+        />
+        {/* <Drawer.Screen name="StudentNotes" component={StudentNotes} /> */}
 
         <Drawer.Screen name="Add Child" component={TabNavigation} />
         <Drawer.Screen name="Settings" component={TabNavigation} />

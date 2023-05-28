@@ -17,6 +17,8 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useFormStore } from "../../stores/useFormStore";
 import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useCallback, useMemo, useRef } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import * as StatusBar from "expo-status-bar";
 
 type CourseCardProps = {
   name: string;
@@ -132,12 +134,12 @@ export type CourseStackParams = {
 const StackNavigator = createStackNavigator<CourseStackParams>();
 
 export default function Courses() {
-  const { children, activeChild } = useFormStore((state) => ({
-    children: state.children,
-    activeChild: state.activeChild,
-  }));
-
-  console.log(children);
+  useFocusEffect(
+    useCallback(() => {
+      StatusBar.setStatusBarStyle("auto");
+      StatusBar.setStatusBarBackgroundColor("#F6F6F6", true);
+    }, [])
+  );
   return (
     <StackNavigator.Navigator
       initialRouteName="CoursesList"

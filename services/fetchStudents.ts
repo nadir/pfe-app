@@ -1,6 +1,8 @@
+import { API_URL } from "../config/constants";
+
 export const fetchStudents = async (token: string) => {
   try {
-    const response = await fetch(`http://192.168.100.103:6969/students`, {
+    const response = await fetch(`${API_URL}/students`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
