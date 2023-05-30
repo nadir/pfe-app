@@ -65,6 +65,7 @@ export const Publication: FC<PublicationProps> = ({ text, title, image }) => {
             height: 200,
             marginTop: 20,
             borderRadius: 10,
+            overflow: "hidden",
           }}
         />
       )}

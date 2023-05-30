@@ -1,4 +1,6 @@
-type FeedItemProps = {
+import { StyleProp, ViewStyle } from "react-native";
+
+export type FeedItemProps = {
   id: number;
   user: {
     id: string;
@@ -22,6 +24,7 @@ type FeedItemProps = {
     text: string;
     votes: number;
   }[];
+  cardStyle?: StyleProp<ViewStyle>;
 };
 
 type PublicationProps = {

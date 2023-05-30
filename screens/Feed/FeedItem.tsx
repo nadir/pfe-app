@@ -9,6 +9,9 @@ import { produce } from "immer";
 import { useFormStore } from "../../stores/useFormStore";
 import { formatDistanceToNow } from "date-fns";
 import { API_URL } from "../../config/constants";
+import { data } from "./data";
+import Toast from "react-native-toast-message";
+import { FeedItemProps } from "./FeedItemTypes";
 
 export const FeedItem: FC<FeedItemProps> = ({
   id,
@@ -25,8 +28,10 @@ export const FeedItem: FC<FeedItemProps> = ({
   question,
   poll_id,
   votedOption,
+  cardStyle,
 }) => {
   const token = useFormStore((state) => state.token);
+  const userId = useFormStore((state) => state.loggedInUser.id);
   const lastItemId = useRef(id);
 
   // // ref to liked posts
@@ -42,25 +47,64 @@ export const FeedItem: FC<FeedItemProps> = ({
     setLiked(isLiked);
   }
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, cardStyle]}>
       {/* Author profile pic and posted at date */}
-      <View style={{ flexDirection: "row", alignItems: "center" }}>
-        <Avatar.Text
-          size={40}
-          label={user.name[0] + user.name[1]}
-          color="white"
-          style={{
-            backgroundColor: "#c3c2ff",
-          }}
-        />
-        <View style={{ marginLeft: 10 }}>
-          <Text style={{ fontFamily: "SourceSansPro-SemiBold" }}>
-            {user.name}
-          </Text>
-          <Text style={{ fontFamily: "SourceSansPro-Regular", color: "gray" }}>
-            Posted {formattedDate}
-          </Text>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Avatar.Text
+            size={40}
+            label={user.name[0] + user.name[1]}
+            color="white"
+            style={{
+              backgroundColor: "#c3c2ff",
+            }}
+          />
+          <View style={{ marginLeft: 10 }}>
+            <Text style={{ fontFamily: "SourceSansPro-SemiBold" }}>
+              {user.name}
+            </Text>
+            <Text
+              style={{ fontFamily: "SourceSansPro-Regular", color: "gray" }}
+            >
+              Posted {formattedDate}
+            </Text>
+          </View>
         </View>
+        {user.id === userId && (
+          <IconButton
+            icon={"delete"}
+            onPress={async () => {
+              try {
+                await fetch(`${API_URL}/posts/${id}`, {
+                  method: "DELETE",
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                });
+              } catch (error) {
+                Toast.show({
+                  type: "error",
+                  text1: "Error",
+                  text2: "Something went wrong",
+                });
+              }
+              queryClient.setQueryData(["feed"], (data: any) => ({
+                pages: produce(data.pages, (draft: any) => {
+                  draft.forEach((page: any) => {
+                    page.data = page.data.filter((post: any) => post.id !== id);
+                  });
+                }),
+                pageParams: data.pageParams,
+              }));
+            }}
+          />
+        )}
       </View>
       {/* render poll or publication*/}
 
@@ -143,7 +187,8 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     marginVertical: 10,
     padding: 20,
-    elevation: 1,
     borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#e6e6e6",
   },
 });

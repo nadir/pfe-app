@@ -40,6 +40,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import ManageChildrenSheet from "./ManageChildrenSheet";
 import { useNavigation } from "@react-navigation/native";
 import StudentNotes from "./Notes/StudentNotes";
+import FeedDetails from "./Feed/FeedDetails";
 
 const Tab = createBottomTabNavigator();
 
@@ -253,6 +254,8 @@ const MainScreen = () => {
         }}
       >
         <Drawer.Screen name="Feed" component={TabNavigation} />
+        <Drawer.Screen name="PostDetails" component={FeedDetails} />
+
         <Drawer.Screen
           name="Notes"
           component={user_type === "teacher" ? Notes : StudentNotes}

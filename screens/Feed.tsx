@@ -13,6 +13,7 @@ import { useCallback, useState } from "react";
 import { AntDesign } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import * as StatusBar from "expo-status-bar";
+import { TouchableOpacity } from "react-native";
 
 const useInfiniteFeed = (token: string) => {
   return useInfiniteQuery(
@@ -42,8 +43,9 @@ const useInfiniteFeed = (token: string) => {
   );
 };
 
-const Feed = () => {
+const Feed = ({ navigation }: { navigation: any }) => {
   const token = useFormStore((state) => state.token);
+  const userId = useFormStore((state) => state.loggedInUser.id);
   const {
     data,
     isLoading,
@@ -81,7 +83,18 @@ const Feed = () => {
           });
         }}
         refreshing={isLoading}
-        renderItem={({ item }) => <FeedItem {...item} />}
+        renderItem={({ item }) => {
+          return (
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => {
+                navigation.navigate("PostDetails", item);
+              }}
+            >
+              <FeedItem {...item} />
+            </TouchableOpacity>
+          );
+        }}
         keyExtractor={(item) => item.id.toString()}
         getItemType={(item) => item.type}
         onEndReached={() => {
