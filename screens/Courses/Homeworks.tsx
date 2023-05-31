@@ -176,19 +176,22 @@ const Homeworks = ({
 
   return (
     <View style={styles.container}>
-      <Button
-        mode="contained"
-        icon={"plus"}
-        style={{
-          marginHorizontal: 20,
-          backgroundColor: color,
-        }}
-        onPress={() => {
-          navigation.navigate("AddHomework");
-        }}
-      >
-        Add Homework
-      </Button>
+      {user_type === "teacher" && (
+        <Button
+          mode="contained"
+          icon={"plus"}
+          style={{
+            marginHorizontal: 20,
+            backgroundColor: color,
+          }}
+          onPress={() => {
+            navigation.navigate("AddHomework");
+          }}
+        >
+          Add Homework
+        </Button>
+      )}
+
       <FlatList
         contentContainerStyle={{
           gap: 20,

@@ -41,6 +41,7 @@ import ManageChildrenSheet from "./ManageChildrenSheet";
 import { useNavigation } from "@react-navigation/native";
 import StudentNotes from "./Notes/StudentNotes";
 import FeedDetails from "./Feed/FeedDetails";
+import AddChild from "./AddChild";
 
 const Tab = createBottomTabNavigator();
 
@@ -265,6 +266,24 @@ const MainScreen = () => {
         <Drawer.Screen name="Add Child" component={TabNavigation} />
         <Drawer.Screen name="Settings" component={TabNavigation} />
         <Drawer.Screen name="Chat" component={ChatNavigator} />
+        <Drawer.Screen
+          options={({ navigation }) => ({
+            headerShown: true,
+            headerTitle: "Add Child",
+            headerTitleStyle: {
+              fontFamily: "SourceSansPro-SemiBold",
+            },
+            headerLeft: () => (
+              <IconButton
+                icon="arrow-left"
+                onPress={() => navigation.goBack()}
+              />
+            ),
+          })}
+          name="AddChild"
+          component={AddChild}
+        />
+
         <Drawer.Screen
           name="AddHomework"
           component={AddHomework}

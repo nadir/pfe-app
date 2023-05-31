@@ -9,6 +9,7 @@ import {
 
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useRef } from "react";
+import { navigate } from "../util/RootNavigation";
 
 export const ManageChildrenSheet = () => {
   const { dismiss } = useBottomSheetModal();
@@ -37,7 +38,8 @@ export const ManageChildrenSheet = () => {
       <Button
         mode="contained"
         onPress={() => {
-          console.log("child added");
+          navigate("AddChild");
+          dismiss();
         }}
         buttonColor="#7976FF"
         icon={"account-plus"}

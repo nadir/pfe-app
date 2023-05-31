@@ -60,6 +60,7 @@ type FormState = {
   activeChild: number | null;
   setActiveChild: (activeChild: number | null) => void;
   setChildren: (children: Student[]) => void;
+  addChild: (child: Student) => void;
   setActiveStep: (activeStep: number) => void;
   personalInformation: PersonalInformation;
   setPersonalInformation: (personalInformation: PersonalInformation) => void;
@@ -130,6 +131,8 @@ export const useFormStore = create<FormState>((set) => ({
     set((state) => ({ ...state, proofOfEnrollment })),
   children: [],
   setChildren: (children) => set((state) => ({ ...state, children })),
+  addChild: (child) =>
+    set((state) => ({ ...state, children: [child, ...state.children] })),
   activeChild: null,
   setActiveChild: (activeChild) => set((state) => ({ ...state, activeChild })),
   bottomSheetRef: { current: null },

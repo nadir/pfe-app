@@ -47,6 +47,7 @@ import { cacheImages } from "./util/cacheImages";
 import { queryClient } from "./util/queryClient";
 import { fetchStudents } from "./services/fetchStudents";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { navigationRef } from "./util/RootNavigation";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -73,9 +74,6 @@ onlineManager.setEventListener((setOnline) => {
     setOnline(!!state.isConnected);
   });
 });
-
-// create navigation ref for notifications
-const navigationRef = createNavigationContainerRef();
 
 export default function App() {
   const [appReady, setAppReady] = useState(false);

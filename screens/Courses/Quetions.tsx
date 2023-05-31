@@ -150,9 +150,10 @@ const Quetions = ({
             </Text>
           </View>
         </View>
-        <Divider style={{ marginVertical: 20 }} />
         {item.answer ? (
           <>
+            <Divider style={{ marginVertical: 20 }} />
+
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Ionicons name="checkmark-circle" size={40} color="green" />
               <View style={{ marginLeft: 10 }}>
@@ -185,7 +186,7 @@ const Quetions = ({
               {item.answer}
             </Text>
           </>
-        ) : (
+        ) : user_type === "teacher" ? (
           <View>
             <TextInput
               mode="outlined"
@@ -266,83 +267,85 @@ const Quetions = ({
               Reply
             </Button>
           </View>
-        )}
+        ) : null}
       </View>
     );
   };
 
   return (
     <View style={styles.container}>
-      <View
-        style={{
-          alignSelf: "stretch",
-          backgroundColor: "white",
-          borderRadius: 10,
-          borderWidth: 1,
-          borderColor: "#e3e3e3",
-          padding: 15,
-          justifyContent: "space-between",
-        }}
-      >
-        <TextInput
-          mode="outlined"
-          multiline
-          value={question}
-          numberOfLines={3}
-          maxLength={200}
-          onChange={(e) => setQuestion(e.nativeEvent.text)}
-          outlineColor="#e3e3e3"
+      {user_type === "parent" && (
+        <View
           style={{
+            alignSelf: "stretch",
             backgroundColor: "white",
-          }}
-          outlineStyle={{
-            borderWidth: 0,
-          }}
-          activeOutlineColor="#c2c2c2"
-          placeholder="Type your question here..."
-        />
-        <Button
-          mode="contained"
-          onPress={async () => {
-            try {
-              const response = await fetch(
-                `${API_URL}/modules/${moduleId}/question`,
-                {
-                  method: "POST",
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                    question,
-                    module_id: moduleId,
-                  }),
-                }
-              );
-              const data = await response.json();
-
-              if (!response.ok) {
-                throw new Error(data.message);
-              }
-
-              refetch();
-              setQuestion("");
-            } catch (error) {
-              Toast.show({
-                text1: "Error",
-                text2: (error as Error).message,
-                type: "error",
-              });
-            }
-          }}
-          style={{
-            marginTop: 10,
-            backgroundColor: primaryColor,
+            borderRadius: 10,
+            borderWidth: 1,
+            borderColor: "#e3e3e3",
+            padding: 15,
+            justifyContent: "space-between",
           }}
         >
-          Ask
-        </Button>
-      </View>
+          <TextInput
+            mode="outlined"
+            multiline
+            value={question}
+            numberOfLines={3}
+            maxLength={200}
+            onChange={(e) => setQuestion(e.nativeEvent.text)}
+            outlineColor="#e3e3e3"
+            style={{
+              backgroundColor: "white",
+            }}
+            outlineStyle={{
+              borderWidth: 0,
+            }}
+            activeOutlineColor="#c2c2c2"
+            placeholder="Type your question here..."
+          />
+          <Button
+            mode="contained"
+            onPress={async () => {
+              try {
+                const response = await fetch(
+                  `${API_URL}/modules/${moduleId}/question`,
+                  {
+                    method: "POST",
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                      question,
+                      module_id: moduleId,
+                    }),
+                  }
+                );
+                const data = await response.json();
+
+                if (!response.ok) {
+                  throw new Error(data.message);
+                }
+
+                refetch();
+                setQuestion("");
+              } catch (error) {
+                Toast.show({
+                  text1: "Error",
+                  text2: (error as Error).message,
+                  type: "error",
+                });
+              }
+            }}
+            style={{
+              marginTop: 10,
+              backgroundColor: primaryColor,
+            }}
+          >
+            Ask
+          </Button>
+        </View>
+      )}
       <FlatList
         data={questions}
         contentContainerStyle={{ gap: 20, paddingBottom: 20 }}
