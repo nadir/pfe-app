@@ -10,6 +10,7 @@ import { Toast } from "react-native-toast-message/lib/src/Toast";
 import { useState } from "react";
 import { API_URL } from "../../config/constants";
 import { refreshFCMToken } from "../../services/refreshFCMToken";
+import { fetchStudents } from "../../services/fetchStudents";
 
 export function UploadProof({ navigation }: any) {
   const [loading, setLoading] = useState(false);
@@ -20,6 +21,8 @@ export function UploadProof({ navigation }: any) {
     proofOfEnrollment,
     setLoggedInUser,
     setToken,
+    setChildren,
+    setActiveChild,
   } = useFormStore();
   return (
     <SlideUpCard>
@@ -104,6 +107,12 @@ export function UploadProof({ navigation }: any) {
 
                 address: personalInformation.address,
               });
+
+              // handle errors better next
+              const childrenDetails = await fetchStudents(json.token);
+              setChildren(childrenDetails);
+              setActiveChild(0);
+
               await refreshFCMToken(json.token);
             }
           } catch (error) {

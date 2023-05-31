@@ -1,17 +1,19 @@
 import { Button } from "react-native-paper";
 import SlideUpCard from "../../components/SlideUpCard";
 import { Text } from "react-native-paper";
-import { useForm } from "react-hook-form";
-import { Platform, ScrollView } from "react-native";
+import { Controller, useForm } from "react-hook-form";
+import { Platform, ScrollView, View } from "react-native";
 import ControlledTextInput from "../../components/ControlledTextInput";
 import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
 import { format } from "date-fns";
 import { useFormStore } from "../../stores/useFormStore";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Icon } from "@rneui/base";
 import { childInfoSchema } from "../../validation/childInfo";
 import DatePickerInputButton from "../../components/DatePickerInputButton";
+import { Picker } from "@react-native-picker/picker";
+import { API_URL } from "../../config/constants";
 
 export function ChildInformation({ navigation }: any) {
   const { setActiveStep } = useFormStore();
@@ -35,6 +37,20 @@ export function ChildInformation({ navigation }: any) {
   };
 
   const [loading, setLoading] = useState(false);
+  const [classes, setClasses] = useState<
+    {
+      id: number;
+      name: string;
+    }[]
+  >([]);
+
+  useEffect(() => {
+    fetch(`${API_URL}/classes?distinct=true`)
+      .then((response) => response.json())
+      .then((data) => {
+        setClasses(data.results);
+      });
+  }, []);
 
   return (
     <SlideUpCard>
@@ -95,19 +111,68 @@ export function ChildInformation({ navigation }: any) {
             setFocus("class");
           }}
         />
-        <ControlledTextInput
+        <Controller
           control={control}
           name="class"
-          label="Class"
-          placeholder="Class"
-          autoComplete="name-family"
-          autoCorrect={false}
-          icon={<Icon type="material-community" name="school" />}
-          error={errors.class}
-          onSubmitEditing={() => {
-            handleSubmit(onSubmit)();
-          }}
-        />
+          render={({ field: { onChange, onBlur, value } }) => (
+            <>
+              <Text
+                style={{
+                  fontFamily: "SourceSansPro-Bold",
+                  fontSize: 14,
+                  color: "#7976FF",
+                }}
+              >
+                Class
+              </Text>
+              <View
+                style={{
+                  borderRadius: 10,
+                  backgroundColor: "white",
+                  borderWidth: 1,
+                  borderColor: errors.class ? "rgb(255, 0, 0)" : "#e6e6e6",
+                  shadowColor: "#00000037",
+                  shadowOffset: {
+                    width: 0,
+                    height: 2,
+                  },
+                  shadowRadius: 2,
+                  shadowOpacity: 1,
+                  elevation: 10,
+                  marginBottom: 10,
+                }}
+              >
+                <Picker
+                  selectedValue={value}
+                  onValueChange={onChange}
+                  onBlur={onBlur}
+                >
+                  <Picker.Item label="Select Class" value={null} />
+                  {classes.map((classItem) => (
+                    <Picker.Item
+                      key={classItem.id}
+                      label={classItem.name}
+                      value={classItem.id}
+                    />
+                  ))}
+                </Picker>
+              </View>
+
+              {errors.class && (
+                <Text
+                  style={{
+                    fontFamily: "SourceSansPro-Regular",
+                    fontSize: 12,
+                    color: "rgb(255, 0, 0)",
+                    marginBottom: 5,
+                  }}
+                >
+                  {errors.class?.message}
+                </Text>
+              )}
+            </>
+          )}
+        ></Controller>
       </ScrollView>
       <Button
         buttonColor="#7976FF"

@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Linking, StyleSheet, Text, View } from "react-native";
 import { IconButton } from "react-native-paper";
 import { Image } from "expo-image";
 import { format, formatDistanceToNow } from "date-fns";
@@ -112,7 +112,13 @@ const FileCard = ({
         }}
       >
         {downloadable !== false && (
-          <IconButton icon="download" size={20} onPress={() => {}} />
+          <IconButton
+            icon="download"
+            size={20}
+            onPress={() => {
+              Linking.openURL(url);
+            }}
+          />
         )}
         {deletable && (
           <IconButton
