@@ -1,6 +1,7 @@
 import { View, TouchableOpacity, Text } from "react-native";
 import { Image } from "expo-image";
 import { FC, useState } from "react";
+import { PublicationProps } from "./FeedItemTypes";
 
 export const Publication: FC<PublicationProps> = ({ text, title, image }) => {
   const [showMore, setShowMore] = useState(false);
@@ -55,20 +56,25 @@ export const Publication: FC<PublicationProps> = ({ text, title, image }) => {
       )}
 
       {/* post image */}
-      {image && (
-        <Image
-          source={{
-            uri: image,
-          }}
-          placeholder={"LKN]Rv%2Tw=w]~RBVZRi};RPxuwH"}
-          style={{
-            height: 200,
-            marginTop: 20,
-            borderRadius: 10,
-            overflow: "hidden",
-          }}
-        />
-      )}
+      {image &&
+        (console.log(image),
+        (
+          <Image
+            recyclingKey={image}
+            source={{
+              uri: image,
+            }}
+            placeholder={"LEHLk~WB2yk8pyo0adR*.7kCMdnj"}
+            contentFit="cover"
+            style={{
+              height: 200,
+
+              marginTop: 20,
+              borderRadius: 10,
+            }}
+            transition={500}
+          />
+        ))}
     </View>
   );
 };

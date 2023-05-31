@@ -4,7 +4,6 @@ import { Image } from "expo-image";
 
 type FileProps = {
   name?: string;
-  uploadedBy?: string;
   uploadedAt?: string;
   url: string;
   icon?: string;
@@ -31,14 +30,7 @@ const getFileIcon = (url: string) => {
   }
 };
 
-const FileCard = ({
-  name,
-  uploadedBy,
-  uploadedAt,
-  url,
-  icon,
-  downloadable,
-}: FileProps) => {
+const FileCard = ({ name, uploadedAt, url, icon, downloadable }: FileProps) => {
   const fileIcon = icon ? icon : getFileIcon(url);
   const fileName = name ? name : url.split("/").pop();
   return (

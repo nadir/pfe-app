@@ -12,10 +12,10 @@ export type Module = {
   class_name: string;
 };
 
-export const useModules = (token: string) => {
-  return useQuery<Module[]>("modules", async () => {
+export const useModules = (token: string, class_id?: string) => {
+  return useQuery<Module[]>(["modules", class_id], async () => {
     try {
-      const response = await fetch(`${API_URL}/modules`, {
+      const response = await fetch(`${API_URL}/modules/${class_id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

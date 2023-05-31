@@ -19,18 +19,20 @@ import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useCallback, useMemo, useRef } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import * as StatusBar from "expo-status-bar";
+import { useModules } from "../../services/useModules";
 
 type CourseCardProps = {
   name: string;
   color: string;
   icon: string;
+  id: number;
   navigation: NativeStackScreenProps<
     CourseStackParams,
     "CoursesList"
   >["navigation"];
 };
 
-const CourseCard = ({ name, color, icon, navigation }: CourseCardProps) => {
+const CourseCard = ({ name, color, icon, navigation, id }: CourseCardProps) => {
   // course card that has icon, name and color of the course
   // when pressed it navigates to the course page
   return (
@@ -46,6 +48,7 @@ const CourseCard = ({ name, color, icon, navigation }: CourseCardProps) => {
             name,
             color,
             icon,
+            id,
           })
         }
         style={{
@@ -93,6 +96,20 @@ const CourseCard = ({ name, color, icon, navigation }: CourseCardProps) => {
 const CoursesList = ({
   navigation,
 }: NativeStackScreenProps<CourseStackParams, "CoursesList">) => {
+  const token = useFormStore((state) => state.token);
+  const user_type = useFormStore((state) => state.loggedInUser.user_type);
+  let classId;
+  if (user_type === "parent") {
+    classId = useFormStore(
+      (state) => state.children[state.activeChild || 0].class_id
+    );
+  }
+
+  const { data, isLoading, isError, error, refetch } = useModules(
+    token,
+    classId
+  );
+
   return (
     <SafeAreaView
       style={{
@@ -108,13 +125,18 @@ const CoursesList = ({
           flex: 1,
         }}
       >
-        {courseData.map((course, index) => (
+        {data?.map((course, index) => (
           <CourseCard
             key={index}
             navigation={navigation}
-            name={course.name}
+            name={
+              user_type === "teacher"
+                ? course.name + " - " + course.class_name
+                : course.name
+            }
             color={course.color}
             icon={course.icon}
+            id={course.id}
           />
         ))}
       </ScrollView>
@@ -127,6 +149,8 @@ export type CourseStackParams = {
     name: string;
     color: string;
     icon: string;
+    id: number;
+    class_id?: string;
   };
   CoursesList: undefined;
 };

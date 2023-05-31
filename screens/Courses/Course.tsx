@@ -107,7 +107,9 @@ const Course = ({ navigation, route }: CourseProps) => {
           setActiveTab(newPage);
         }}
       >
-        {activeTab === 0 && <CourseFiles />}
+        {activeTab === 0 && (
+          <CourseFiles id={route.params.id} color={colorShade} />
+        )}
         {activeTab === 1 && <Homeworks />}
         {activeTab === 2 && (
           <Quetions

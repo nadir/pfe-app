@@ -27,13 +27,13 @@ export type FeedItemProps = {
   cardStyle?: StyleProp<ViewStyle>;
 };
 
-type PublicationProps = {
+export type PublicationProps = {
   title?: string;
   text: string;
   image?: string;
 };
 
-type PollProps = {
+export type PollProps = {
   question: string;
   votedOptionId?: number;
   options: {

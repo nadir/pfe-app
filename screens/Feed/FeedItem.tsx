@@ -78,7 +78,7 @@ export const FeedItem: FC<FeedItemProps> = ({
         </View>
         {user.id === userId && (
           <IconButton
-            icon={"delete"}
+            icon={"trash-can-outline"}
             onPress={async () => {
               try {
                 await fetch(`${API_URL}/posts/${id}`, {

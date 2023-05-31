@@ -36,12 +36,18 @@ const AddContent = ({ navigation }: { navigation: any }) => {
   const { data: modules } = useModules(token);
 
   const classes = useMemo(() => {
-    return modules?.map((module) => {
-      return {
-        name: module.class_name,
-        id: module.class_id,
-      };
-    });
+    return modules?.reduce(
+      (uniqueClasses: { name: string; id: number }[], module) => {
+        if (!uniqueClasses.some((c) => c.id === module.class_id)) {
+          uniqueClasses.push({
+            name: module.class_name,
+            id: module.class_id,
+          });
+        }
+        return uniqueClasses;
+      },
+      []
+    );
   }, [modules]);
 
   const addInput = () => {
@@ -56,11 +62,38 @@ const AddContent = ({ navigation }: { navigation: any }) => {
   };
 
   const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 1,
       selectionLimit: 1,
+      aspect: [4, 3],
+      allowsEditing: true,
+    });
+
+    if (!result.canceled) {
+      console.log(result.assets);
+      setImage(result.assets[0].uri);
+    }
+  };
+
+  const pickImageFromCamera = async () => {
+    // get camera permission if not granted
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      Toast.show({
+        type: "error",
+        text1: "Permission Denied",
+        text2: "Please allow camera access from settings",
+      });
+      return;
+    }
+
+    let result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
+      selectionLimit: 1,
+      aspect: [1, 1],
+      allowsEditing: true,
     });
 
     if (!result.canceled) {
@@ -125,6 +158,7 @@ const AddContent = ({ navigation }: { navigation: any }) => {
                     type: "error",
                     text1: "Poll must have a title",
                   });
+                  setLoading(false);
                   return;
                 }
                 if (inputs.length < 2) {
@@ -132,6 +166,8 @@ const AddContent = ({ navigation }: { navigation: any }) => {
                     type: "error",
                     text1: "Poll must have at least 2 options",
                   });
+                  setLoading(false);
+
                   return;
                 }
 
@@ -141,6 +177,8 @@ const AddContent = ({ navigation }: { navigation: any }) => {
                     type: "error",
                     text1: "Poll options cannot be empty",
                   });
+                  setLoading(false);
+
                   return;
                 }
                 try {
@@ -165,6 +203,8 @@ const AddContent = ({ navigation }: { navigation: any }) => {
                     type: "error",
                     text1: "Post must have a body",
                   });
+                  setLoading(false);
+
                   return;
                 }
                 try {
@@ -281,9 +321,9 @@ const AddContent = ({ navigation }: { navigation: any }) => {
                   iconColor="#ff1212"
                   rippleColor="#ff7676"
                   style={{
-                    backgroundColor: "#ffe7e7",
+                    backgroundColor: "#fff2f2",
                   }}
-                  icon={"delete"}
+                  icon={"trash-can-outline"}
                   mode="contained"
                   onPress={() => {
                     deleteInput(index);
@@ -343,6 +383,22 @@ const AddContent = ({ navigation }: { navigation: any }) => {
                   if (image) setImage("");
                   else {
                     pickImage();
+                  }
+                }}
+              ></IconButton>
+              <IconButton
+                iconColor="#7976FF"
+                rippleColor="#7976FF"
+                style={{
+                  alignSelf: "flex-end",
+                  backgroundColor: "transparent",
+                }}
+                icon={image ? "image-remove" : "camera-plus"}
+                mode="contained"
+                onPress={() => {
+                  if (image) setImage("");
+                  else {
+                    pickImageFromCamera();
                   }
                 }}
               ></IconButton>

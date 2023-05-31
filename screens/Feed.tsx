@@ -1,4 +1,4 @@
-import { StyleSheet, FlatList } from "react-native";
+import { StyleSheet, FlatList, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 // import { data } from "./Feed/data";
@@ -9,11 +9,13 @@ import { API_URL } from "../config/constants";
 import { useFormStore } from "../stores/useFormStore";
 import { ActivityIndicator, IconButton, Searchbar } from "react-native-paper";
 import { queryClient } from "../util/queryClient";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { AntDesign } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import * as StatusBar from "expo-status-bar";
 import { TouchableOpacity } from "react-native";
+import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
+import FeedComments from "./Feed/FeedComments";
 
 const useInfiniteFeed = (token: string) => {
   return useInfiniteQuery(
@@ -65,12 +67,37 @@ const Feed = ({ navigation }: { navigation: any }) => {
     }, [])
   );
 
+  const renderBackdrop = useCallback(
+    (props: any) => (
+      <BottomSheetBackdrop
+        {...props}
+        disappearsOnIndex={-1}
+        appearsOnIndex={1}
+      />
+    ),
+    []
+  );
+
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  // variables
+  const snapPoints = useMemo(() => ["25%", "70%"], []);
+
   return (
     <SafeAreaView
       style={{
         flex: 1,
       }}
     >
+      <BottomSheetModal
+        ref={bottomSheetModalRef}
+        index={1}
+        snapPoints={snapPoints}
+        backdropComponent={renderBackdrop}
+      >
+        {(
+          { data: id } //@ts-ignore
+        ) => <FeedComments id={id} />}
+      </BottomSheetModal>
       <FlashList
         estimatedItemSize={300}
         contentContainerStyle={styles.container}
@@ -88,7 +115,8 @@ const Feed = ({ navigation }: { navigation: any }) => {
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={() => {
-                navigation.navigate("PostDetails", item);
+                const id = item.id;
+                bottomSheetModalRef.current?.present(id);
               }}
             >
               <FeedItem {...item} />

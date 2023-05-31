@@ -104,12 +104,18 @@ const Notes = ({ navigation }: { navigation: any }) => {
     }
   }, [modules]);
 
-  const classes = data?.map((module) => {
-    return {
-      name: module.class_name,
-      id: module.class_id,
-    };
-  });
+  const classes = data?.reduce(
+    (uniqueClasses: { name: string; id: number }[], module) => {
+      if (!uniqueClasses.some((c) => c.id === module.class_id)) {
+        uniqueClasses.push({
+          name: module.class_name,
+          id: module.class_id,
+        });
+      }
+      return uniqueClasses;
+    },
+    []
+  );
 
   const handleNoteChange = (id: number, field: keyof Note, value: string) => {
     const cleanedText = value.replace(/[^0-9]/g, "");
