@@ -1,12 +1,74 @@
-import { StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 import FileCard from "../../components/FileCard";
 import { useFormStore } from "../../stores/useFormStore";
-import { IconButton } from "react-native-paper";
+import { Button, IconButton } from "react-native-paper";
+import { useQuery } from "react-query";
+import { API_URL } from "../../config/constants";
+import { format, formatDistanceToNow } from "date-fns";
+import Toast from "react-native-toast-message";
 
-const Homeworks = () => {
-  const user_type = useFormStore((state) => state.loggedInUser.user_type);
-  return (
-    <View style={styles.container}>
+interface Homework {
+  id: number;
+  module_id: number;
+  class_id: number;
+  title: string;
+  description: string;
+  file: string;
+  due_date: string;
+  created_at: string;
+  author_id: string;
+  filename: string;
+}
+
+const useHomeworks = (classId: number, moduleId: number, token: string) => {
+  return useQuery<Homework[]>(["modules", moduleId, "homeworks"], async () => {
+    const response = await fetch(
+      `${API_URL}/modules/${moduleId}/${classId}/homeworks`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message);
+    }
+
+    return data.results;
+  });
+};
+
+const Homeworks = ({
+  navigation,
+  moduleId,
+  classId,
+  user_type,
+  color,
+}: {
+  navigation: any;
+  moduleId: number;
+  classId: number;
+  user_type: string;
+  color: string;
+}) => {
+  const token = useFormStore((state) => state.token);
+
+  const {
+    data: homeworks,
+    isLoading,
+    refetch,
+  } = useHomeworks(classId, moduleId, token);
+
+  console.log(homeworks);
+
+  const rendrHomeworks = ({ item }: { item: Homework }) => {
+    let formattedDate = formatDistanceToNow(new Date(item.created_at), {
+      addSuffix: true,
+      includeSeconds: true,
+    }).replace("about ", "");
+    return (
       <View
         style={{
           borderRadius: 10,
@@ -34,7 +96,7 @@ const Homeworks = () => {
               flexGrow: 1,
             }}
           >
-            Introductory exercises
+            {item.title}
           </Text>
           <View
             style={{
@@ -44,21 +106,34 @@ const Homeworks = () => {
             {user_type === "teacher" ? (
               <>
                 <IconButton
-                  icon="pencil"
-                  style={{
-                    backgroundColor: "#f2f2f2",
-                  }}
-                  size={20}
-                  onPress={() => {}}
-                />
-                <IconButton
-                  icon="delete"
+                  icon="trash-can-outline"
                   iconColor="#e53935"
                   style={{
                     backgroundColor: "#f2f2f2",
                   }}
                   size={20}
-                  onPress={() => {}}
+                  onPress={async () => {
+                    const response = await fetch(
+                      `${API_URL}/modules/homeworks/${item.id}`,
+                      {
+                        method: "DELETE",
+                        headers: {
+                          Authorization: `Bearer ${token}`,
+                        },
+                      }
+                    );
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                      Toast.show({
+                        type: "error",
+                        text1: "Error",
+                        text2: data.message,
+                      });
+                    } else {
+                      refetch();
+                    }
+                  }}
                 />
               </>
             ) : (
@@ -67,10 +142,9 @@ const Homeworks = () => {
                   fontFamily: "SourceSansPro-Regular",
                   fontSize: 12,
                   color: "grey",
-                  marginLeft: 10,
                 }}
               >
-                Due in 2 days
+                Due on {format(new Date(item.due_date), "dd/MM/yyyy")}
               </Text>
             )}
           </View>
@@ -83,14 +157,9 @@ const Homeworks = () => {
             marginLeft: 10,
           }}
         >
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec
-          aliquet, augue eu ultricies lacinia, ipsum nibh dapibus erat, sed
-          posuere justo nunc quis justo. Donec aliquet, augue eu ultricies
-          lacinia, ipsum nibh dapibus erat, sed posuere justo nunc quis justo.
-          Donec aliquet, augue eu ultricies lacinia, ipsum nibh dapibus erat,
-          sed posuere justo nunc quis justo.
+          {item.description}
         </Text>
-        <FileCard url="https://example/homework.pdf" />
+        <FileCard name={item.filename} url={item.file} downloadable />
         <Text
           style={{
             fontFamily: "SourceSansPro-Regular",
@@ -99,9 +168,36 @@ const Homeworks = () => {
             marginLeft: 10,
           }}
         >
-          Posted 2 days ago by H. Nadhir
+          Posted {formattedDate}
         </Text>
       </View>
+    );
+  };
+
+  return (
+    <View style={styles.container}>
+      <Button
+        mode="contained"
+        icon={"plus"}
+        style={{
+          marginHorizontal: 20,
+          backgroundColor: color,
+        }}
+        onPress={() => {
+          navigation.navigate("AddHomework");
+        }}
+      >
+        Add Homework
+      </Button>
+      <FlatList
+        contentContainerStyle={{
+          gap: 20,
+        }}
+        data={homeworks}
+        renderItem={rendrHomeworks}
+        keyExtractor={(item) => item.id.toString()}
+        refreshing={isLoading}
+      />
     </View>
   );
 };
@@ -111,9 +207,9 @@ export default Homeworks;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    height: 1000,
     backgroundColor: "white",
     gap: 20,
     paddingTop: 30,
+    minHeight: 1000,
   },
 });

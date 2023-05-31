@@ -26,13 +26,21 @@ type CourseCardProps = {
   color: string;
   icon: string;
   id: number;
+  class_id: number;
   navigation: NativeStackScreenProps<
     CourseStackParams,
     "CoursesList"
   >["navigation"];
 };
 
-const CourseCard = ({ name, color, icon, navigation, id }: CourseCardProps) => {
+const CourseCard = ({
+  name,
+  color,
+  icon,
+  navigation,
+  id,
+  class_id,
+}: CourseCardProps) => {
   // course card that has icon, name and color of the course
   // when pressed it navigates to the course page
   return (
@@ -49,6 +57,7 @@ const CourseCard = ({ name, color, icon, navigation, id }: CourseCardProps) => {
             color,
             icon,
             id,
+            class_id,
           })
         }
         style={{
@@ -98,7 +107,7 @@ const CoursesList = ({
 }: NativeStackScreenProps<CourseStackParams, "CoursesList">) => {
   const token = useFormStore((state) => state.token);
   const user_type = useFormStore((state) => state.loggedInUser.user_type);
-  let classId;
+  let classId = "";
   if (user_type === "parent") {
     classId = useFormStore(
       (state) => state.children[state.activeChild || 0].class_id
@@ -137,6 +146,12 @@ const CoursesList = ({
             color={course.color}
             icon={course.icon}
             id={course.id}
+            // @ts-ignore
+
+            class_id={
+              // @ts-ignore
+              user_type === "teacher" ? course.class_id : classId
+            }
           />
         ))}
       </ScrollView>
@@ -150,7 +165,7 @@ export type CourseStackParams = {
     color: string;
     icon: string;
     id: number;
-    class_id?: string;
+    class_id: number;
   };
   CoursesList: undefined;
 };

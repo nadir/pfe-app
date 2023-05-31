@@ -1,12 +1,15 @@
 import { StyleSheet, Text, View } from "react-native";
 import { IconButton } from "react-native-paper";
 import { Image } from "expo-image";
+import { format, formatDistanceToNow } from "date-fns";
 
 type FileProps = {
-  name?: string;
-  uploadedAt?: string;
+  name: string;
+  uploadedAt?: Date;
   url: string;
   icon?: string;
+  deletable?: boolean;
+  onDelete?: () => void;
   // default true
   downloadable?: boolean | true;
 };
@@ -30,9 +33,27 @@ const getFileIcon = (url: string) => {
   }
 };
 
-const FileCard = ({ name, uploadedAt, url, icon, downloadable }: FileProps) => {
-  const fileIcon = icon ? icon : getFileIcon(url);
-  const fileName = name ? name : url.split("/").pop();
+const FileCard = ({
+  name,
+  uploadedAt,
+  url,
+  icon,
+  downloadable,
+  deletable,
+  onDelete,
+}: FileProps) => {
+  const fileIcon = icon ? icon : getFileIcon(name);
+  const fileName = name;
+
+  let formattedDate;
+
+  if (uploadedAt) {
+    formattedDate = formatDistanceToNow(uploadedAt, {
+      addSuffix: true,
+      includeSeconds: true,
+    }).replace("about ", "");
+  }
+
   return (
     <View
       style={{
@@ -65,16 +86,43 @@ const FileCard = ({ name, uploadedAt, url, icon, downloadable }: FileProps) => {
         <Text
           style={{
             fontFamily: "SourceSansPro-Bold",
-            fontSize: 16,
+            fontSize: 14,
             color: "black",
           }}
         >
           {fileName}
         </Text>
+        {uploadedAt && (
+          <Text
+            style={{
+              fontFamily: "SourceSansPro-Regular",
+              fontSize: 12,
+              color: "grey",
+            }}
+          >
+            Uploaded {formattedDate}
+          </Text>
+        )}
       </View>
-      {downloadable !== false && (
-        <IconButton icon="download" size={20} onPress={() => {}} />
-      )}
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        {downloadable !== false && (
+          <IconButton icon="download" size={20} onPress={() => {}} />
+        )}
+        {deletable && (
+          <IconButton
+            icon="trash-can-outline"
+            iconColor="red"
+            size={20}
+            onPress={onDelete}
+          />
+        )}
+      </View>
     </View>
   );
 };

@@ -1,6 +1,6 @@
 import { Picker } from "@react-native-picker/picker";
 import { Input } from "@rneui/base";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import {
   Button,
@@ -21,8 +21,9 @@ import { format } from "date-fns";
 import Toast from "react-native-toast-message";
 import { useModules } from "../services/useModules";
 import { API_URL } from "../config/constants";
+import { queryClient } from "../util/queryClient";
 
-const AddHomework = () => {
+const AddHomework = ({ navigation }: { navigation: any }) => {
   const token = useFormStore((state) => state.token);
   const [selectedClass, setSelectedClass] = useState<number>();
   const [selectedModule, setSelectedModule] = useState<number>();
@@ -31,15 +32,24 @@ const AddHomework = () => {
   const [title, setTitle] = useState<string>();
   const [description, setDescription] = useState<string>();
   const { data, isLoading, isError, error } = useModules(token);
+  const [loading, setLoading] = useState(false);
 
   const modules = data?.filter((module) => module.class_id === selectedClass);
 
-  const classes = data?.map((module) => {
-    return {
-      name: module.class_name,
-      id: module.class_id,
-    };
-  });
+  const classes = useMemo(() => {
+    return data?.reduce(
+      (uniqueClasses: { name: string; id: number }[], module) => {
+        if (!uniqueClasses.some((c) => c.id === module.class_id)) {
+          uniqueClasses.push({
+            name: module.class_name,
+            id: module.class_id,
+          });
+        }
+        return uniqueClasses;
+      },
+      []
+    );
+  }, [data]);
 
   return (
     <SafeAreaView
@@ -110,11 +120,12 @@ const AddHomework = () => {
             inputContainerStyle={{
               borderBottomWidth: 0,
             }}
+            textAlignVertical="top"
             multiline
             numberOfLines={5}
             containerStyle={{
               backgroundColor: "#ffffff",
-              padding: 10,
+              padding: 15,
               borderRadius: 10,
               borderWidth: 1,
               borderColor: "#e3e3e3",
@@ -236,25 +247,13 @@ const AddHomework = () => {
               }}
             >
               {file?.type === "success" ? (
-                <View
-                  style={{
-                    flex: 1,
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <FileCard
-                    downloadable={false}
-                    url={file.uri}
-                    name={file.name}
-                  />
-                  <IconButton
-                    icon="close"
-                    size={20}
-                    onPress={() => setFile(undefined)}
-                  />
-                </View>
+                <FileCard
+                  downloadable={false}
+                  url={file.uri}
+                  name={file.name}
+                  deletable={true}
+                  onDelete={() => setFile(undefined)}
+                />
               ) : (
                 "Select a file"
               )}
@@ -317,14 +316,19 @@ const AddHomework = () => {
 
         <Button
           mode="contained"
+          loading={loading}
+          disabled={loading}
           style={{
             width: "100%",
             alignSelf: "center",
+            borderRadius: 10,
 
             backgroundColor: "#1e88e5",
             marginVertical: 20,
           }}
           onPress={async () => {
+            setLoading(true);
+
             if (
               !title ||
               !description ||
@@ -340,6 +344,7 @@ const AddHomework = () => {
                 text1: "Error",
                 text2: "Please fill all the fields",
               });
+              setLoading(false);
               return;
             }
             const form = new FormData();
@@ -367,7 +372,17 @@ const AddHomework = () => {
               if (!response.ok) {
                 throw new Error(data.message);
               }
-              console.log("posted homework");
+              Toast.show({
+                type: "success",
+                text1: "Success",
+                text2: "Homework posted successfully",
+              });
+              queryClient.invalidateQueries([
+                "modules",
+                selectedModule,
+                "homeworks",
+              ]);
+              navigation.goBack();
             } catch (error) {
               console.log(error);
               Toast.show({
@@ -375,7 +390,9 @@ const AddHomework = () => {
                 text1: "Error",
                 text2: "Error while posting homework",
               });
+              setLoading(false);
             }
+            setLoading(false);
           }}
         >
           Publish

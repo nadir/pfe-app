@@ -16,19 +16,14 @@ import Quetions from "./Quetions";
 import { Button } from "react-native-paper";
 import CourseFiles from "./CourseFiles";
 import Homeworks from "./Homeworks";
+import { useFormStore } from "../../stores/useFormStore";
 
 type CourseProps = NativeStackScreenProps<CourseStackParams, "Course">;
 
-const ContentTest = () => {
-  return (
-    <View style={{ height: 1000, backgroundColor: "white" }}>
-      <Text>Content here brother</Text>
-    </View>
-  );
-};
-
 const Course = ({ navigation, route }: CourseProps) => {
   const colorShade = adjustHex(route.params.color, 15);
+
+  const user_type = useFormStore((state) => state.loggedInUser.user_type);
 
   const [activeTab, setActiveTab] = useState(0);
 
@@ -110,9 +105,18 @@ const Course = ({ navigation, route }: CourseProps) => {
         {activeTab === 0 && (
           <CourseFiles id={route.params.id} color={colorShade} />
         )}
-        {activeTab === 1 && <Homeworks />}
+        {activeTab === 1 && (
+          <Homeworks
+            color={colorShade}
+            user_type={user_type}
+            navigation={navigation}
+            classId={route.params.class_id!}
+            moduleId={route.params.id}
+          />
+        )}
         {activeTab === 2 && (
           <Quetions
+            moduleId={route.params.id}
             primaryColor={route.params.color}
             secondaryColor={colorShade}
           />

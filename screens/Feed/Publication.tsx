@@ -56,25 +56,26 @@ export const Publication: FC<PublicationProps> = ({ text, title, image }) => {
       )}
 
       {/* post image */}
-      {image &&
-        (console.log(image),
-        (
-          <Image
-            recyclingKey={image}
-            source={{
-              uri: image,
-            }}
-            placeholder={"LEHLk~WB2yk8pyo0adR*.7kCMdnj"}
-            contentFit="cover"
-            style={{
-              height: 200,
+      {image && (
+        <Image
+          recyclingKey={image}
+          source={{
+            uri: image,
+          }}
+          placeholder={"LEHLk~WB2yk8pyo0adR*.7kCMdnj"}
+          contentFit="cover"
+          style={{
+            height: 200,
 
-              marginTop: 20,
-              borderRadius: 10,
-            }}
-            transition={500}
-          />
-        ))}
+            marginTop: 20,
+            borderRadius: 10,
+          }}
+          transition={{
+            duration: 300,
+            effect: "cross-dissolve",
+          }}
+        />
+      )}
     </View>
   );
 };
