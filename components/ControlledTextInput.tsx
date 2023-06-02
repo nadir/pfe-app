@@ -1,15 +1,24 @@
-import React from "react";
-import { Controller, ControllerProps } from "react-hook-form";
-import { TextInputProps, TextInput } from "react-native-paper";
+import React, { useState } from "react";
+import { Controller, FieldError, set } from "react-hook-form";
+import { Input, Icon } from "@rneui/themed";
+import { View, StyleSheet, TextInputProps } from "react-native";
+import { IconNode } from "@rneui/base";
 
 interface ControlledTextInputProps {
   control: any;
   name: string;
   label?: string;
   placeholder?: string;
-  secureTextEntry?: boolean;
-  inputProps?: TextInputProps;
-  minLength?: number;
+  isPassword?: boolean;
+  error?: FieldError;
+  icon?: IconNode;
+  maxLength?: number;
+  onSubmitEditing?: TextInputProps["onSubmitEditing"];
+  autoCapitalize?: TextInputProps["autoCapitalize"];
+  keyboardType?: TextInputProps["keyboardType"];
+  autoCorrect?: TextInputProps["autoCorrect"];
+  autoComplete?: TextInputProps["autoComplete"];
+  textContentType?: TextInputProps["textContentType"];
 }
 
 const ControlledTextInput: React.FC<ControlledTextInputProps> = ({
@@ -17,42 +26,127 @@ const ControlledTextInput: React.FC<ControlledTextInputProps> = ({
   name,
   label,
   placeholder,
-  secureTextEntry,
-  inputProps,
-  minLength,
+  isPassword,
+  error,
+  icon,
+  autoCapitalize,
+  keyboardType,
+  autoCorrect,
+  autoComplete,
+  textContentType,
+  onSubmitEditing,
+  maxLength,
 }) => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [focused, setFocused] = useState(false);
+
   return (
-    <Controller
-      control={control}
-      name={name}
-      rules={{
-        required: { value: true, message: `${name} is required` },
-        minLength: {
-          message: `${name} must be at least ${minLength} characters`,
-          value: minLength || 0,
-        },
-      }}
-      render={({ field: { onBlur, onChange, value } }) => (
-        <TextInput
-          label={label}
-          placeholder={placeholder}
-          value={value}
-          onBlur={onBlur}
-          onChangeText={onChange}
-          secureTextEntry={secureTextEntry}
-          // Styling for text input
-          placeholderTextColor="#d5d5d5ea"
-          mode="outlined"
-          theme={{
-            roundness: 10,
-          }}
-          outlineColor="#d8d8da"
-          activeOutlineColor="#a8a8a8ea"
-          {...inputProps}
-        />
-      )}
-    />
+    <View>
+      <Controller
+        control={control}
+        name={name}
+        render={({ field: { onBlur, onChange, value, ref } }) => (
+          <Input
+            //styles
+            style={{
+              fontFamily: "SourceSansPro-Regular",
+              fontSize: 15,
+            }}
+            ref={ref}
+            errorStyle={styles.errorStyle}
+            labelStyle={styles.labelStyle}
+            blurOnSubmit={false}
+            inputContainerStyle={[
+              styles.inputContainerStyle,
+              {
+                borderColor: error ? "red" : focused ? "#7976FF" : "#DADCE1",
+              },
+            ]}
+            containerStyle={styles.containerStyle}
+            // meta
+            autoCapitalize={autoCapitalize}
+            keyboardType={keyboardType}
+            autoCorrect={autoCorrect}
+            autoComplete={autoComplete}
+            textContentType={textContentType}
+            maxLength={maxLength}
+            //
+            label={label}
+            placeholder={placeholder}
+            value={value}
+            onFocus={() => {
+              setFocused(true);
+            }}
+            onBlur={() => {
+              isPassword && setShowPassword(false);
+              setFocused(false);
+              onBlur();
+            }}
+            onChangeText={onChange}
+            onSubmitEditing={onSubmitEditing}
+            secureTextEntry={isPassword && !showPassword}
+            errorMessage={error?.message}
+            renderErrorMessage={false}
+            leftIcon={
+              isPassword ? <Icon type="material-community" name="lock" /> : icon
+            }
+            leftIconContainerStyle={{ marginRight: 10 }}
+            rightIcon={
+              isPassword ? (
+                <Icon
+                  type="material-community"
+                  name={showPassword ? "eye" : "eye-off"}
+                  onPress={() => setShowPassword(!showPassword)}
+                />
+              ) : undefined
+            }
+            // Styling for text input
+            placeholderTextColor="#9a99b1"
+          />
+        )}
+      />
+    </View>
   );
 };
 
 export default ControlledTextInput;
+
+const styles = StyleSheet.create({
+  inputContainerStyle: {
+    fontSize: 12,
+    gap: 0,
+    marginVertical: 10,
+    backgroundColor: "white",
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    paddingVertical: 0,
+    // very soft shadow
+    shadowColor: "#00000037",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowRadius: 2,
+    shadowOpacity: 1,
+    elevation: 10,
+  },
+  labelStyle: {
+    fontSize: 13,
+    fontFamily: "SourceSansPro-Bold",
+    color: "#7976FF",
+    paddingVertical: 0,
+
+    fontWeight: "normal",
+  },
+  containerStyle: {
+    minHeight: 50,
+    paddingVertical: 0,
+    paddingHorizontal: 0,
+  },
+  errorStyle: {
+    marginTop: 0,
+    marginLeft: 0,
+    fontFamily: "SourceSansPro-Regular",
+  },
+});

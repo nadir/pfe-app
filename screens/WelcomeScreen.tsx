@@ -1,22 +1,27 @@
-import { StyleSheet, Text, View } from "react-native";
+import { InteractionManager, StyleSheet, Text, View } from "react-native";
 import LottieView from "lottie-react-native";
 import { Button } from "react-native-paper";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 
-const HomeScreen = ({ navigation }: any) => {
+const WelcomeScreen = ({ navigation }: any) => {
   const [animation, setAnimation] = useState<any>(null);
-  const lot = useRef<any>(null);
+  const lottie = useRef<any>(null);
   useLayoutEffect(() => {
     const animation = require("../assets/illustrations/intro.json");
     setAnimation(animation);
   }, []);
+
+  // when welcome page is out of focus pause the animation
   useFocusEffect(
     useCallback(() => {
-      lot.current?.play();
+      const task = InteractionManager.runAfterInteractions(() => {
+        lottie.current?.play();
+      });
 
       return () => {
-        lot.current?.pause();
+        task.cancel();
+        lottie.current?.pause();
       };
     }, [])
   );
@@ -31,7 +36,7 @@ const HomeScreen = ({ navigation }: any) => {
       >
         {animation && (
           <LottieView
-            ref={lot}
+            ref={lottie}
             style={{
               width: 350,
               height: 350,
@@ -66,7 +71,7 @@ const HomeScreen = ({ navigation }: any) => {
         mode="contained"
         labelStyle={{ fontFamily: "SourceSansPro-Bold" }}
         onPress={() => {
-          lot.current?.pause();
+          lottie.current?.pause();
           navigation.navigate("Login");
         }}
         buttonColor="#7976FF"
@@ -79,7 +84,7 @@ const HomeScreen = ({ navigation }: any) => {
   );
 };
 
-export default HomeScreen;
+export default WelcomeScreen;
 
 const styles = StyleSheet.create({
   container: {

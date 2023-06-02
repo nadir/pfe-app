@@ -1,0 +1,42 @@
+{
+  "cli": {
+    "version": ">= 3.9.2"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "env": {
+        "FIREBASE": "true"
+      },
+      "android": {
+        "image": "latest",
+        "buildType": "apk"
+      },
+      "distribution": "internal",
+      "ios": {
+        "resourceClass": "m-medium"
+      }
+    },
+    "preview": {
+      "env": {
+        "FIREBASE": "true"
+      },
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk",
+        "image": "latest"
+      }
+    },
+    "production": {
+      "android": {
+        "buildType": "apk"
+      },
+      "ios": {
+        "resourceClass": "m-medium"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

@@ -1,74 +1,144 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { StyleSheet, Text, View } from "react-native";
-import { Button, TextInput, Divider, HelperText } from "react-native-paper";
+import { Keyboard, StyleSheet, Text, View } from "react-native";
+import { Button, TextInput, Divider } from "react-native-paper";
 import ControlledTextInput from "../components/ControlledTextInput";
+import { SafeAreaView } from "react-native-safe-area-context";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { Icon } from "@rneui/base";
+import * as SecureStore from "expo-secure-store";
+import * as Haptics from "expo-haptics";
+import Error from "../components/Error";
 
-const LoginScreen = () => {
-  const [secure, setSecure] = useState(true);
+import { useFormStore } from "../stores/useFormStore";
+import { API_URL } from "../config/constants";
+import { fetchUser } from "../services/fetchUser";
+import { refreshFCMToken } from "../services/refreshFCMToken";
+import { fetchStudents } from "../services/fetchStudents";
+import { set } from "lodash";
+
+const loginSchema = yup.object({
+  username: yup.string().required("Username is required"),
+  password: yup
+    .string()
+    .min(8, "Password should have a min length of 8")
+    .required("Password is required"),
+});
+
+const LoginScreen = ({ navigation }: any) => {
+  const [error, setError] = useState<string | null>(null);
+  const { setToken, setLoggedInUser, setChildren, setActiveChild } =
+    useFormStore((state) => ({
+      setToken: state.setToken,
+      setLoggedInUser: state.setLoggedInUser,
+      setChildren: state.setChildren,
+      setActiveChild: state.setActiveChild,
+    }));
 
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    setFocus,
+    formState: { errors, isSubmitting },
   } = useForm({
+    resolver: yupResolver(loginSchema),
     defaultValues: {
       username: "",
       password: "",
     },
   });
 
-  const onSubmit = (data: any) => console.log(data);
+  const onSubmit = async (data: yup.InferType<typeof loginSchema>) => {
+    let options = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    };
+    try {
+      const response = await fetch(`${API_URL}/auth/login`, options);
+      const json = await response.json();
+      if (!response.ok) {
+        setError(json.message);
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+        return;
+      }
+      await SecureStore.setItemAsync("token", json.token);
+
+      await setToken(json.token);
+
+      const userDetails = await fetchUser(json.token);
+      setLoggedInUser({
+        id: userDetails.user_id,
+        firstName: userDetails.first_name,
+        email: userDetails.email,
+        user_type: userDetails.user_type,
+        lastName: userDetails.last_name,
+        profilePicture: userDetails.profile_picture,
+        address: userDetails.address,
+        phoneNumber: userDetails.phone_number,
+        username: userDetails.username,
+      });
+      if (userDetails.user_type === "parent") {
+        const childrenDetails = await fetchStudents(json.token);
+        setChildren(childrenDetails);
+        setActiveChild(0);
+      }
+      await refreshFCMToken(json.token);
+    } catch (error) {
+      setError("Something went wrong");
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    }
+  };
 
   return (
-    <View style={styles.container}>
-      <Text style={{ fontFamily: "SourceSansPro-Bold", fontSize: 30 }}>
+    <SafeAreaView style={styles.container}>
+      <Text
+        style={{
+          fontFamily: "SourceSansPro-Bold",
+          fontSize: 30,
+          marginBottom: 10,
+        }}
+      >
         Login to your account
       </Text>
-      <ControlledTextInput
-        control={control}
-        name="username"
-        label="Username"
-        placeholder="Enter your username"
-        inputProps={{
-          left: <TextInput.Icon icon="account" />,
-          style: { ...styles.input, marginVertical: 20 },
-          error: errors.username ? true : false,
-        }}
-      />
-      {errors.username && (
-        <HelperText type="error">{errors.username?.message}</HelperText>
-      )}
-      <ControlledTextInput
-        control={control}
-        name="password"
-        label="Password"
-        placeholder="Enter your username"
-        minLength={8}
-        secureTextEntry={secure}
-        inputProps={{
-          error: errors.password ? true : false,
-          onBlur: () => setSecure(true),
-          right: (
-            <TextInput.Icon
-              icon={secure ? "eye" : "eye-off"}
-              onPress={() => setSecure(!secure)}
-            />
-          ),
-          left: <TextInput.Icon icon="lock" />,
-          style: { ...styles.input },
-        }}
-      />
-      {errors.password && (
-        <HelperText type="error">{errors.password?.message}</HelperText>
-      )}
-      {/* a small gray line to divide content */}
+      {error && <Error message={error} />}
+      <View>
+        <ControlledTextInput
+          control={control}
+          name="username"
+          placeholder="Enter your username"
+          icon={<Icon type="material-community" name="account" />}
+          error={errors.username}
+          autoCapitalize="none"
+          autoCorrect={false}
+          onSubmitEditing={() => {
+            setFocus("password");
+          }}
+        />
+        <ControlledTextInput
+          control={control}
+          name="password"
+          placeholder="Enter your password"
+          autoComplete="password"
+          error={errors.password}
+          autoCapitalize="none"
+          isPassword={true}
+          onSubmitEditing={handleSubmit(onSubmit)}
+        />
+      </View>
 
       <Button
         mode="contained"
         style={styles.btn}
         labelStyle={{ fontFamily: "SourceSansPro-Bold" }}
-        onPress={() => handleSubmit(onSubmit)()}
+        onPress={() => {
+          setError(null);
+          Keyboard.dismiss();
+          handleSubmit(onSubmit)();
+        }}
+        loading={isSubmitting}
+        disabled={isSubmitting}
         buttonColor="#7976FF"
         icon="arrow-right"
       >
@@ -78,7 +148,6 @@ const LoginScreen = () => {
       <Divider
         style={{
           backgroundColor: "#d8d8da",
-          width: "90%",
         }}
       />
       <Button
@@ -86,11 +155,14 @@ const LoginScreen = () => {
         mode="contained-tonal"
         style={[styles.btn]}
         labelStyle={{ fontFamily: "SourceSansPro-Bold" }}
-        onPress={() => console.log("Pressed")}
+        onPress={() => {
+          Keyboard.dismiss();
+          navigation.navigate("Signup");
+        }}
       >
         Create an account
       </Button>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -106,7 +178,6 @@ const styles = StyleSheet.create({
   },
   btn: {
     marginVertical: 20,
-    // borderRadius: 5,
   },
   input: {
     alignSelf: "stretch",
