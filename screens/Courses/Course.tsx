@@ -123,7 +123,17 @@ const Course = ({ navigation, route }: CourseProps) => {
         )}
         {activeTab === 3 && (
           <View style={styles.container}>
-            <Text>Shut up</Text>
+            <Text
+              style={{
+                fontFamily: "SourceSansPro-SemiBold",
+                color: "black",
+                fontSize: 14,
+                textAlign: "center",
+                marginTop: 20,
+              }}
+            >
+              No description
+            </Text>
           </View>
         )}
       </TabbedHeaderPager>

@@ -200,6 +200,19 @@ const Homeworks = ({
         renderItem={rendrHomeworks}
         keyExtractor={(item) => item.id.toString()}
         refreshing={isLoading}
+        ListEmptyComponent={() => (
+          <Text
+            style={{
+              fontFamily: "SourceSansPro-SemiBold",
+              color: "black",
+              fontSize: 14,
+              textAlign: "center",
+              marginTop: 20,
+            }}
+          >
+            No homeworks found
+          </Text>
+        )}
       />
     </View>
   );

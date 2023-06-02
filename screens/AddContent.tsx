@@ -370,38 +370,46 @@ const AddContent = ({ navigation }: { navigation: any }) => {
                 />
               )}
 
-              <IconButton
-                iconColor="#7976FF"
-                rippleColor="#7976FF"
+              <View
                 style={{
-                  alignSelf: "flex-end",
-                  backgroundColor: "transparent",
+                  flexDirection: "row",
+                  justifyContent: "flex-end",
+                  gap: 5,
                 }}
-                icon={image ? "image-remove" : "image-plus"}
-                mode="contained"
-                onPress={() => {
-                  if (image) setImage("");
-                  else {
-                    pickImage();
-                  }
-                }}
-              ></IconButton>
-              <IconButton
-                iconColor="#7976FF"
-                rippleColor="#7976FF"
-                style={{
-                  alignSelf: "flex-end",
-                  backgroundColor: "transparent",
-                }}
-                icon={image ? "image-remove" : "camera-plus"}
-                mode="contained"
-                onPress={() => {
-                  if (image) setImage("");
-                  else {
-                    pickImageFromCamera();
-                  }
-                }}
-              ></IconButton>
+              >
+                <IconButton
+                  iconColor="#7976FF"
+                  rippleColor="#7976FF"
+                  style={{
+                    alignSelf: "flex-end",
+                    backgroundColor: "transparent",
+                  }}
+                  icon={image ? "image-remove" : "image-plus"}
+                  mode="contained"
+                  onPress={() => {
+                    if (image) setImage("");
+                    else {
+                      pickImage();
+                    }
+                  }}
+                ></IconButton>
+                <IconButton
+                  iconColor="#7976FF"
+                  rippleColor="#7976FF"
+                  style={{
+                    alignSelf: "flex-end",
+                    backgroundColor: "transparent",
+                  }}
+                  icon={image ? "image-remove" : "camera-plus"}
+                  mode="contained"
+                  onPress={() => {
+                    if (image) setImage("");
+                    else {
+                      pickImageFromCamera();
+                    }
+                  }}
+                ></IconButton>
+              </View>
             </View>
           </ScrollView>
         )}

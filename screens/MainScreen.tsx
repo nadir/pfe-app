@@ -42,11 +42,41 @@ import { useNavigation } from "@react-navigation/native";
 import StudentNotes from "./Notes/StudentNotes";
 import FeedDetails from "./Feed/FeedDetails";
 import AddChild from "./AddChild";
+import Verify from "./Verify";
+import { Ionicons } from "@expo/vector-icons";
 
 const Tab = createBottomTabNavigator();
 
-const TabNavigation = () => {
+const TabNavigation = ({ navigation }: { navigation: any }) => {
   const user_type = useFormStore((state) => state.loggedInUser.user_type);
+
+  const verified = useFormStore((state) => {
+    if (state.loggedInUser && state.loggedInUser.user_type === "parent") {
+      const activeChild = state.activeChild;
+      const children = state.children;
+
+      if (
+        activeChild !== null &&
+        children &&
+        children.length > activeChild &&
+        children[activeChild].verified !== undefined
+      ) {
+        return children[activeChild].verified;
+      }
+    }
+
+    return true;
+  });
+
+  console.log("user_type", verified);
+  if (!verified) {
+    navigation.setOptions({
+      swipeEnabled: false,
+    });
+    return <Verify />;
+  }
+  // disable drawer swipe gesture
+
   return (
     <Tab.Navigator
       backBehavior="history"
@@ -185,20 +215,24 @@ const TabNavigation = () => {
 const Drawer = createDrawerNavigator();
 
 function CustomDrawerContent(props: DrawerContentComponentProps) {
-  const { logout, bottomSheetRef } = useFormStore((state) => ({
+  const { user_type, logout, bottomSheetRef } = useFormStore((state) => ({
     logout: state.logout,
     bottomSheetRef: state.bottomSheetRef,
+    user_type: state.loggedInUser.user_type,
   }));
   return (
     <DrawerContentScrollView {...props}>
       <DrawerItemList {...props} />
-      <DrawerItem
-        label="Children"
-        onPress={() => {
-          props.navigation.closeDrawer();
-          bottomSheetRef.current?.present();
-        }}
-      />
+      {user_type === "parent" && (
+        <DrawerItem
+          label="Children"
+          onPress={() => {
+            props.navigation.closeDrawer();
+            bottomSheetRef.current?.present();
+          }}
+        />
+      )}
+
       <DrawerItem label="Logout" onPress={logout} />
     </DrawerContentScrollView>
   );
@@ -250,57 +284,108 @@ const MainScreen = () => {
       <Drawer.Navigator
         drawerContent={(props) => <CustomDrawerContent {...props} />}
         screenOptions={{
+          drawerActiveTintColor: "#7976FF",
           headerShown: false,
           swipeEnabled: true,
         }}
       >
-        <Drawer.Screen name="Feed" component={TabNavigation} />
-        <Drawer.Screen name="PostDetails" component={FeedDetails} />
+        <Drawer.Screen
+          name="Feed"
+          options={{
+            drawerIcon: ({ focused }) => (
+              <Ionicons
+                name="newspaper"
+                size={20}
+                color={focused ? "#7976FF" : "grey"}
+              />
+            ),
+          }}
+          component={TabNavigation}
+        />
 
         <Drawer.Screen
           name="Notes"
+          options={{
+            drawerIcon: ({ focused }) => (
+              <Ionicons
+                name="calculator"
+                size={20}
+                color={focused ? "#7976FF" : "grey"}
+              />
+            ),
+          }}
           component={user_type === "teacher" ? Notes : StudentNotes}
         />
         {/* <Drawer.Screen name="StudentNotes" component={StudentNotes} /> */}
 
-        <Drawer.Screen name="Add Child" component={TabNavigation} />
-        <Drawer.Screen name="Settings" component={TabNavigation} />
-        <Drawer.Screen name="Chat" component={ChatNavigator} />
         <Drawer.Screen
-          options={({ navigation }) => ({
-            headerShown: true,
-            headerTitle: "Add Child",
-            headerTitleStyle: {
-              fontFamily: "SourceSansPro-SemiBold",
-            },
-            headerLeft: () => (
-              <IconButton
-                icon="arrow-left"
-                onPress={() => navigation.goBack()}
+          name="Chat"
+          component={ChatNavigator}
+          options={{
+            drawerIcon: ({ focused }) => (
+              <Ionicons
+                name="chatbubble-ellipses"
+                size={20}
+                color={focused ? "#7976FF" : "grey"}
               />
             ),
-          })}
-          name="AddChild"
-          component={AddChild}
+          }}
         />
+        {user_type === "parent" && (
+          <Drawer.Screen
+            options={({ navigation }) => ({
+              drawerIcon: ({ focused }) => (
+                <Ionicons
+                  name="person-add"
+                  size={20}
+                  color={focused ? "#7976FF" : "grey"}
+                />
+              ),
+              headerShown: true,
+              headerTitle: "Add Child",
+              headerTitleStyle: {
+                fontFamily: "SourceSansPro-SemiBold",
+              },
+              drawerLabel: "Add Child",
+              headerLeft: () => (
+                <IconButton
+                  icon="arrow-left"
+                  onPress={() => navigation.goBack()}
+                />
+              ),
+            })}
+            name="AddChild"
+            component={AddChild}
+          />
+        )}
 
-        <Drawer.Screen
-          name="AddHomework"
-          component={AddHomework}
-          options={({ navigation }) => ({
-            headerShown: true,
-            headerTitle: "Add Homework",
-            headerTitleStyle: {
-              fontFamily: "SourceSansPro-SemiBold",
-            },
-            headerLeft: () => (
-              <IconButton
-                icon="arrow-left"
-                onPress={() => navigation.goBack()}
-              />
-            ),
-          })}
-        />
+        {user_type === "teacher" && (
+          <Drawer.Screen
+            name="AddHomework"
+            component={AddHomework}
+            options={({ navigation }) => ({
+              drawerIcon: ({ focused }) => (
+                <Ionicons
+                  name="pencil"
+                  size={20}
+                  color={focused ? "#7976FF" : "grey"}
+                />
+              ),
+              headerShown: true,
+              headerTitle: "Add Homework",
+              drawerLabel: "Add Homework",
+              headerTitleStyle: {
+                fontFamily: "SourceSansPro-SemiBold",
+              },
+              headerLeft: () => (
+                <IconButton
+                  icon="arrow-left"
+                  onPress={() => navigation.goBack()}
+                />
+              ),
+            })}
+          />
+        )}
       </Drawer.Navigator>
     </>
   );

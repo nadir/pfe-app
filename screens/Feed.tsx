@@ -132,38 +132,38 @@ const Feed = ({ navigation }: { navigation: any }) => {
           }
         }}
         onEndReachedThreshold={0.8}
-        ListHeaderComponent={() => {
-          const [searchQuery, setSearchQuery] = useState("");
-          // search bar
-          return (
-            <Searchbar
-              style={{
-                marginVertical: 15,
-                borderRadius: 10,
-                padding: 0,
-                backgroundColor: "#fff",
-                borderColor: "#e8e8e8",
-                borderWidth: 1,
-              }}
-              placeholder="Search"
-              onChangeText={(text) => {
-                setSearchQuery(text);
-              }}
-              value={searchQuery}
-              mode="bar"
-              right={(props) => (
-                // return arrow icon if search query is not empty
-                <IconButton
-                  {...props}
-                  icon={searchQuery ? "arrow-right" : "close"}
-                  onPress={() => {
-                    console.log("search query", searchQuery);
-                  }}
-                />
-              )}
-            />
-          );
-        }}
+        // ListHeaderComponent={() => {
+        //   const [searchQuery, setSearchQuery] = useState("");
+        //   // search bar
+        //   return (
+        //     <Searchbar
+        //       style={{
+        //         marginVertical: 15,
+        //         borderRadius: 10,
+        //         padding: 0,
+        //         backgroundColor: "#fff",
+        //         borderColor: "#e8e8e8",
+        //         borderWidth: 1,
+        //       }}
+        //       placeholder="Search"
+        //       onChangeText={(text) => {
+        //         setSearchQuery(text);
+        //       }}
+        //       value={searchQuery}
+        //       mode="bar"
+        //       right={(props) => (
+        //         // return arrow icon if search query is not empty
+        //         <IconButton
+        //           {...props}
+        //           icon={searchQuery ? "arrow-right" : "close"}
+        //           onPress={() => {
+        //             console.log("search query", searchQuery);
+        //           }}
+        //         />
+        //       )}
+        //     />
+        //   );
+        // }}
         ListFooterComponent={() =>
           isFetchingNextPage ? (
             <ActivityIndicator style={{ marginTop: 20 }} animating={true} />

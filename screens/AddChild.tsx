@@ -311,17 +311,6 @@ const AddChild = ({ navigation }: { navigation: any }) => {
       >
         Add Child
       </Button>
-
-      <Button
-        mode="outlined"
-        onPress={() => console.log("bruh")}
-        style={{
-          borderRadius: 10,
-          marginTop: 10,
-        }}
-      >
-        Cancel
-      </Button>
     </ScrollView>
   );
 };

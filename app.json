@@ -36,7 +36,7 @@
       "eas": {
         "projectId": "b75813cf-e008-449a-9b74-82a6f4671568"
       },
-      "apiUrl": "http://192.168.100.103:6969"
+      "apiUrl": "https://pfe-education.herokuapp.com"
     }
   }
 }

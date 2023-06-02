@@ -2,10 +2,9 @@ import { View, TouchableOpacity, Text } from "react-native";
 import { Image } from "expo-image";
 import { FC, useState } from "react";
 import { PublicationProps } from "./FeedItemTypes";
+import ReadMore from "@fawazahmed/react-native-read-more";
 
 export const Publication: FC<PublicationProps> = ({ text, title, image }) => {
-  const [showMore, setShowMore] = useState(false);
-
   return (
     <View
       style={{
@@ -23,37 +22,29 @@ export const Publication: FC<PublicationProps> = ({ text, title, image }) => {
           {title}
         </Text>
       )}
-      <Text
-        numberOfLines={3}
-        onTextLayout={(e) => {
-          setShowMore(e.nativeEvent.lines.length >= 3);
-        }}
+      <ReadMore
+        numberOfLines={4}
+        animate={false}
         style={{
           fontFamily: "SourceSansPro-Regular",
           fontSize: 14,
         }}
+        seeMoreText="Read more"
+        seeMoreStyle={{
+          fontFamily: "SourceSansPro-SemiBold",
+          color: "#7976FF",
+          fontSize: 14,
+          marginLeft: 5,
+        }}
+        seeLessStyle={{
+          fontFamily: "SourceSansPro-SemiBold",
+          color: "#7976FF",
+          fontSize: 14,
+          marginLeft: 5,
+        }}
       >
         {text}
-      </Text>
-
-      {showMore && (
-        <TouchableOpacity
-          style={{
-            alignSelf: "flex-end",
-            marginTop: 10,
-          }}
-        >
-          <Text
-            style={{
-              fontFamily: "SourceSansPro-SemiBold",
-              color: "#7976FF",
-              fontSize: 14,
-            }}
-          >
-            Read more
-          </Text>
-        </TouchableOpacity>
-      )}
+      </ReadMore>
 
       {/* post image */}
       {image && (

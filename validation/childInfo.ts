@@ -25,7 +25,7 @@ export const childInfoSchema = yup.object().shape({
       if (date.getFullYear() < 1900) return false;
       return true;
     }),
-  class: yup.string().required("Class is required"),
+  class: yup.number().required("Class is required"),
 });
 
 export type ChildInfo = yup.InferType<typeof childInfoSchema>;
